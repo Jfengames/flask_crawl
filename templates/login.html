@@ -5,8 +5,22 @@
     <title>Login</title>
 </head>
 <body>
-    <table log>
-
-    </table>
+    <form action="{{ url_for('login') }}" method="post">
+        <table>
+            <tbody>
+                <tr>
+                    <td>用户名：</td>
+                    <td><input type="text" placeholder="请输入用户名" name="username"></td>
+                </tr>
+                <tr>
+                    <td>密码：</td>
+                    <td><input type="password" placeholder="请输入密码" name="passwd"></td>
+                </tr>
+                <tr>
+                    <td><input type="submit" value="登录"></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
 </body>
 </html>
