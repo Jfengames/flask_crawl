@@ -4,7 +4,7 @@ Created on Wed Jun  6 15:44:20 2018
 
 @author: X1Carbon
 """
-
+import shutil
 from flask import Flask,render_template,request,redirect,url_for,session
 import config
 from models import User,Adcode,Scenecode
@@ -23,9 +23,9 @@ config_online = 'config_online.py'
 @app.route('/',methods=['GET','POST'])
 def index():
     scene = request.form.get('scene')
-    print(scene)
+#    print(scene)
     city = request.form.get('city')
-    print(city)
+#    print(city)
     _start = {}
     log=''
     with open(start_crawl_grid_file, 'w') as fh:
@@ -40,6 +40,8 @@ def index():
         _start['resolution'] = "0.01"
         fh.write(json.dumps(_start))
         fh.close()
+    shutil.move("C:/Users/X1Carbon/flask_crawl/MapService/start_grid.json","C:/Users/X1Carbon/MapCrawler/MapCrawler/start_grid.json")
+    
     with open(config_online,'w') as py:
         py.write("HOST = '36.155.125.243'\nPORT = 3306\nUSER = 'net_admin'\nPASSWD =  'Jtsdfg2018'\nDB = 'sdfg'\nCHARSET = 'utf8'\n")
         adsl_url = request.form.get('ADSL_SERVER_URL')
@@ -47,19 +49,17 @@ def index():
         adsl_auth = request.form.get('ADSL_SERVER_AUTH')
         py.write("ADSL_SERVER_AUTH = '"+str(adsl_auth)+"'")
         py.close()  
-
-    with open("C:/Users/X1Carbon/MapCrawler/MapCrawler/wulumuqi.log",'r') as f:
-        
-        #        
+    shutil.move("C:/Users/X1Carbon/flask_crawl/MapService/config_online.py","C:/Users/X1Carbon/MapCrawler/MapCrawler/config.py")
+    
+    with open("C:/Users/X1Carbon/MapCrawler/MapCrawler/wulumuqi.log",'r') as f:    
         for i in f:
-
-            log += i+'\n'
-        print(log)
+            log += i
+#        print(log)
 #    system("mv config_online.py ../destop/config_online.py")
     #print (app.config)    
     #print(Adcode.query.filter(Adcode.city=city).first())   
     
-    return render_template("index.html")
+    return render_template("index.html",log=log)
 
 @app.route('/something/')
 @login_required
@@ -70,7 +70,7 @@ def something():
         #        
         for i in f:
 
-            a += i+'\n'
+            a += i
         return a
 
 

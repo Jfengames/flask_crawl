@@ -5,7 +5,7 @@
 {% block main %}
 
 
-<form action="" method="POST">
+<form action="/" method="POST">
     <div class="tabke-container">
         <div class="table-group">
             <input list="scenes" name="scene">
@@ -80,7 +80,13 @@
     </div>
 </div>
 
-<div id="tttttt">你好{{log}}</div>
+<div class="form-container" style="overflow-y:auto; overflow-x:auto; width:400px; height:400px;">
+
+    {{log}}
+
+</div>
+
+
 
 
 </form>
