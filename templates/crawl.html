@@ -1,0 +1,121 @@
+{% extends 'base.html'%}
+
+{% block title %}爬虫{% endblock %}
+
+{% block main %}
+
+
+<form action="/" method="POST">
+    <div class="tabke-container">
+        <div class="table-group">
+            <a>请输入场景：</a>
+            <input list="scenes" name="scene">
+                <datalist id="scenes">
+                  <option value="居民区">
+                  <option value="高速">
+                  <option value="高铁">
+                  <option value="高层">
+                  <option value="高流量">
+                  <option value="高校">
+                  <option value="美食">
+                  <option value="美景">
+                  <option value="医院">
+                  <option value="地铁">
+                </datalist>
+
+            <a>请输入城市：</a>
+            <input list="citys" name="city">
+                <datalist id="citys">
+                  <option value="北京市">
+                  <option value="成都市">
+                  <option value="大连市">
+                  <option value="福州市">
+                  <option value="广州市">
+                  <option value="贵阳市">
+                  <option value="哈尔滨市">
+                  <option value="海口市">
+                  <option value="杭州市">
+                  <option value="合肥市">
+                  <option value="呼和浩特市">
+                  <option value="济南市">
+                  <option value="昆明市">
+                  <option value="兰州市">
+                  <option value="南昌市">
+                  <option value="南京市">
+                  <option value="南宁市">
+                  <option value="宁波市">
+                  <option value="青岛市">
+                  <option value="厦门市">
+                  <option value="上海市">
+                  <option value="深圳市">
+                  <option value="沈阳市">
+                  <option value="石家庄市">
+                  <option value="苏州市">
+                  <option value="太原市">
+                  <option value="天津市">
+                  <option value="温州市">
+                  <option value="武汉市">
+                  <option value="西安市">
+                  <option value="西宁市">
+                  <option value="银川市">
+                  <option value="长春市">
+                  <option value="长沙市">
+                  <option value="郑州市">
+                  <option value="重庆市">
+                  <option value="拉萨市">
+                  <option value="乌鲁木齐市">
+                </datalist>
+
+        </div>
+    </div>
+    
+<div class="form-container">
+    <div class="table-group">
+
+        <input type="text" class="form-control" placeholder="请输入ASDL_URL" name="ADSL_SERVER_URL">
+    </div>
+    <div class="table-group">
+        <input type="text" class="form-control" placeholder="请输入ASDL_AUTH" name="ADSL_SERVER_AUTH">
+    </div>
+    <div class="table-group">
+        <input type="text" class="form-control" placeholder="请输入KEY" name="KEY">
+    </div>
+    <div class="form-group">
+        <input type="submit" value="开始爬取"/>
+    </div>
+</div>
+
+<div class="form-container" style="overflow-y:auto; overflow-x:auto; width:400px; height:400px;">
+
+    用户名：{{username}}
+    邮箱：{{email}}
+    爬取{{city}}{{scene}}场景
+
+
+</div>
+<div id="log" style="overflow-y:auto;background: red;width: 500px;height: 200px">
+
+</div>
+
+<script>
+
+
+        $.ajax({
+            type : "get",
+            async : false, //同步请求
+            url : "/something/",
+
+            success:function(dates){
+                $("#log").html(dates);//要刷新的div
+            },
+            error: function() {
+                // alert("失败，请稍后再试！");
+            }
+        });
+
+
+</script>
+
+
+</form>
+{% endblock %}    
