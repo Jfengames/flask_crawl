@@ -5,7 +5,7 @@ Created on Wed Jun  6 15:44:20 2018
 @author: X1Carbon
 """
 import shutil
-from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory
+from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
 import config
 from models import User,Adcode,Scenecode,Dataoperation
 from exts import db
@@ -14,7 +14,7 @@ import json
 import pymysql
 import xlwt
 import os
-
+import time
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -32,6 +32,7 @@ def index():
         # scene = request.form.get('scene')
         # scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         city = request.form.get('city')
+        print(city)
         adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
         conn = pymysql.connect(host='127.0.0.1', user='root', password='19900411', db='flaskr', charset='utf8')
         cur = conn.cursor()
@@ -42,8 +43,9 @@ def index():
         cur.execute(sql)
         u = cur.fetchall()
         if len(u)<10:
-            render_template('middle.html')
-
+            flash(message='没有有效数据，跳转到爬虫界面！')
+            time.sleep(3)
+            return redirect(url_for('crawl'))
         else:
             fields = cur.description
             workbook = xlwt.Workbook()
