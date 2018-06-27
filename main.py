@@ -27,25 +27,23 @@ config_online = 'config_online.py'
 @login_required
 def index():
     if request.method == 'GET':
-        return render_template('index.html')
+        u=(1,2,3,4,5,6,7,8,9,10,11)
+        return render_template('index.html',u=u)
     else:
-        # scene = request.form.get('scene')
+        scene = request.form.get('scene')
         # scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         city = request.form.get('city')
-        print(city)
+
         adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
         conn = pymysql.connect(host='127.0.0.1', user='root', password='19900411', db='flaskr', charset='utf8')
         cur = conn.cursor()
         sql="""
             select * from {} where city_adcode={}
-            """.format('gaodemapscene_test',adcode)
-
+            """.format('gaodemapscene_test', adcode)
         cur.execute(sql)
         u = cur.fetchall()
-        if len(u)<10:
-            flash(message='没有有效数据，跳转到爬虫界面！')
-            time.sleep(3)
-            return redirect(url_for('crawl'))
+        if len(u) < 10:
+            return render_template('index.html', u=u, city=city, scene=scene)
         else:
             fields = cur.description
             workbook = xlwt.Workbook()
@@ -64,10 +62,10 @@ def index():
             workbook.save(r'./readout.xls')
 
             conn.close()
-            return render_template('index.html',u=u)
+            return render_template('index.html', u=u)
 
 
-@app.route('/crawl/',methods=['GET','POST'])
+@app.route('/crawl/',methods=['GET', 'POST'])
 @login_required
 def crawl():
 
@@ -118,9 +116,6 @@ def crawl():
         db.session.add(dataoperation)
         db.session.commit()
 
-
-
-        #log=''
         _start={}
 
         with open(start_crawl_grid_file, 'w') as fh:
@@ -181,7 +176,7 @@ def something():
 @app.route('/download/', methods=['GET'])
 def download_file():
     directory =os.getcwd()
-    print(directory)
+
     filename="readout.xls"
     return send_from_directory(directory,filename,as_attachment=True)
 
