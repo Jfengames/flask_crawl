@@ -48,7 +48,7 @@ def index():
         # # mission.email = use.email
         # # mission.city_adcode = Adcode.query.filter(Adcode.city== paras['city']).first()
         # # mission.type_code = Scenecode.query.filter(Scenecode.scene==para['scene']).first()
-        mission.email = 'jiauiwl@chinamobile.com'
+        mission.email = 'jiahuiwl@chinamobile.com'
         mission.city_adcode = '110101'
         mission.type_code = '120000'
         mission.adsl_server_url = 'http://223.105.3.170:18888'

@@ -108,7 +108,8 @@ class SpiderScheduler():
                  'final_grid':mission.final_grid,
                  'status':mission.status,
                  'resolution':mission.resolution,
-                 'LOG_LEVEL':'INFO'
+                 'LOG_LEVEL':'INFO',
+                 'LOG_FILE':mission.city_adcode+'-'+mission.type_code+'.log'
                  }
         proc = Process(target=custom_and_run,args=(paras,spider_path))
         proc.start()
