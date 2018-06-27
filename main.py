@@ -6,6 +6,7 @@ Created on Wed Jun  6 15:44:20 2018
 """
 import shutil
 from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
+from config import HOST,DB,PASSWD,PORT,USER
 import config
 from models import User,Adcode,Scenecode,Dataoperation
 from exts import db
@@ -16,7 +17,7 @@ import xlwt
 import os
 import time
 
-import SpiderScheduler
+from SpiderScheduler import SpiderScheduler
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -40,11 +41,11 @@ def index():
         city = request.form.get('city')
 
         adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
-        conn = pymysql.connect(host='127.0.0.1', user='root', password='19900411', db='flaskr', charset='utf8')
+        conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
         cur = conn.cursor()
         sql="""
             select * from {} where city_adcode={}
-            """.format('gaodemapscene_test', adcode)
+            """.format('GaodeMapScene', adcode)
         cur.execute(sql)
         u = cur.fetchall()
         if len(u) < 10:
@@ -128,12 +129,12 @@ def crawl():
 @app.route('/something/')
 @login_required
 def something():
-    log=''
-    with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/110000.log", 'r',encoding='UTF-8') as f:
-        for i in f:
-            log += i
-        return log
-
+    # log=''
+    # with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/110000.log", 'r',encoding='UTF-8') as f:
+    #     for i in f:
+    #         log += i
+    #     return log
+    return '后续修改'
 
 
 

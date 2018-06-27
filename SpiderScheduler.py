@@ -11,10 +11,9 @@ sys.path.append(spider_path)
 from MapCrawler.spider_interface import custom_and_run
 
 
-
 from multiprocessing import Process
-
-from database import CrawlerMission,db
+from models import Dataoperation
+from exts import db
 
 
 def crawler(mission,db):
@@ -63,7 +62,7 @@ class SpiderScheduler():
         """
         if not mission:
             # 没有指定
-            mission = CrawlerMission.query.filter(CrawlerMission.status!='finished').first()
+            mission = Dataoperation.query.filter(Dataoperation.status!='finished').first()
 
         if self.missions_running < self.MAX_PROCESS:
             # 有可用进程
@@ -109,7 +108,7 @@ class SpiderScheduler():
                  'status':mission.status,
                  'resolution':mission.resolution,
                  'LOG_LEVEL':'INFO',
-                 'LOG_FILE':mission.city_adcode+'-'+mission.type_code+'.log'
+                 # 'LOG_FILE':mission.city_adcode+'-'+mission.type_code+'.log'
                  }
         proc = Process(target=custom_and_run,args=(paras,spider_path))
         proc.start()
