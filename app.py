@@ -34,28 +34,32 @@ def index():
     if request.method == 'GET':
         return render_template('index.html')
     else:
-        paras = {
-        'scene':request.form.get('scene'),
-        'province' : request.form.get('province'),
-        'city' : request.form.get('city'),
-        'adsl_url' : request.form.get('ADSL_SERVER_URL'),
-        'adsl_auth' : request.form.get('ADSL_SERVER_AUTH'),
-        'keys' : request.form.get('KEYS'),
-        }
+        # paras = {
+        # 'scene':request.form.get('scene'),
+        # 'province' : request.form.get('province'),
+        # 'city' : request.form.get('city'),
+        # 'adsl_url' : request.form.get('ADSL_SERVER_URL'),
+        # 'adsl_auth' : request.form.get('ADSL_SERVER_AUTH'),
+        # 'keys' : request.form.get('KEYS'),
+        # }
 
-        mission = CrawlerMission.query.first()
-        # mission.email = use.email
-        # mission.city_adcode = Adcode.query.filter(Adcode.city== paras['city']).first()
-        # mission.type_code = Scenecode.query.filter(Scenecode.scene==para['scene']).first()
-        # mission.email = 'jiauiwl@chinamobile.com'
-        # mission.city_adcode = '100000'
-        # mission.type_code = '120000'
-        # mission.adsl_server_ip = paras['adsl_url']
-        # mission.adsl_auth = paras['adsl_auth']
-        # mission.keys = paras['keys']
-        # mission.status = 'Not start yet'
-        # mission.final_grid = 0
-        # mission.resolution = 0.02
+        mission = CrawlerMission()
+        # # mission = CrawlerMission.query.first()
+        # # mission.email = use.email
+        # # mission.city_adcode = Adcode.query.filter(Adcode.city== paras['city']).first()
+        # # mission.type_code = Scenecode.query.filter(Scenecode.scene==para['scene']).first()
+        mission.email = 'jiauiwl@chinamobile.com'
+        mission.city_adcode = '110101'
+        mission.type_code = '120000'
+        mission.adsl_server_url = 'http://223.105.3.170:18888'
+        mission.adsl_auth = ','.join(['adsl_proxy','changeProxyIp'])
+        mission.keys =  ','.join(['cca93ccd4b15d33e1abf28d810447a72',
+                        '165320bd8a68f241ef3e7f4e1c67a113',
+                        '1acc23863269572c9d595092f54b7d16'])
+
+        mission.status = 'Not start yet'
+        mission.final_grid = 0
+        mission.resolution = 0.02
 
         # db.session.add(mission)
         # db.session.commit()

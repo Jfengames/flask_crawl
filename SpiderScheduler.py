@@ -5,7 +5,13 @@
 @Authro: henry
 """
 import time
-import os
+import sys
+spider_path = '/home/henry/proj/MapCrawler/'
+sys.path.append(spider_path)
+from MapCrawler.spider_interface import custom_and_run
+
+
+
 from multiprocessing import Process
 
 from database import CrawlerMission,db
@@ -93,7 +99,18 @@ class SpiderScheduler():
         :param db: 数据库对象
         :return:
         """
-        proc = Process(target=crawler,args=(mission,db))
+        paras = {'email':mission.email,
+                 'city_adcode':mission.city_adcode,
+                 'type_code':mission.type_code,
+                 'keys':mission.keys.split(','),
+                 'adsl_server_url':mission.adsl_server_url,
+                 'adsl_auth':tuple(mission.adsl_auth.split(',')),
+                 'final_grid':mission.final_grid,
+                 'status':mission.status,
+                 'resolution':mission.resolution,
+                 'LOG_LEVEL':'INFO'
+                 }
+        proc = Process(target=custom_and_run,args=(paras,spider_path))
         proc.start()
         print('已调度新进程')
 
@@ -110,9 +127,10 @@ class SpiderScheduler():
         assert self.missions_running >=0, 'mission_running只应该大于0'
 
         # 更新数据库状态
-        mission.status = status
-        mission.final_grid = grid
-        db.session.commit()
+        # 数据库状态由爬虫自行更改
+        # mission.status = status
+        # mission.final_grid = grid
+        # db.session.commit()
 
     # def schedule(self):
     #     """
@@ -135,17 +153,17 @@ class SpiderScheduler():
 
 if __name__ == '__main__':
     sc = SpiderScheduler()
-    mission = CrawlerMission()
-    mission.email = 'test@SpiderScheduler.py'
-    mission.status = 'not start yet'
-    mission.final_grid =0
-    mission.adsl_server_ip = 'http://teset'
-    mission.adsl_auth = 'fasdf'
-    mission.keys = 'keys'
-    mission.type_code = '120000'
-    mission.city_adcode = '123333'
+    # mission = CrawlerMission()
+    # mission.email = 'test@SpiderScheduler.py'
+    # mission.status = 'not start yet'
+    # mission.final_grid =0
+    # mission.adsl_server_ip = 'http://teset'
+    # mission.adsl_auth = 'fasdf'
+    # mission.keys = 'keys'
+    # mission.type_code = '120000'
+    # mission.city_adcode = '123333'
+    #
+    # db.session.add(mission)
+    # db.session.commit()
 
-    db.session.add(mission)
-    db.session.commit()
-
-    sc.update(mission)
+    sc.update()

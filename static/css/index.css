@@ -2,7 +2,7 @@
     width: 1000px;
     margin: 0 auto;
     overflow: hidden;
-    padding: 10px;
+    padding: 0px;
 }
 .table-responsive{
     width: 1000px;
@@ -19,3 +19,4 @@ table{
     overflow: auto;
 }
 table td{word-break: keep-all;white-space:nowrap;}
+table thead{word-break: keep-all;white-space:nowrap;}

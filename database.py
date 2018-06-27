@@ -25,7 +25,7 @@ class CrawlerMission(db.Model):
     resolution = db.Column(db.Float,default=0.02)
     status = db.Column(db.String(100),nullable=False)
     final_grid = db.Column(db.Integer,default=0)
-    adsl_server_ip = db.Column(db.String(100),nullable=False)
+    adsl_server_url = db.Column(db.String(100),nullable=False)
     adsl_auth = db.Column(db.String(100),nullable=False)
     keys = db.Column(db.Text,nullable=False)
 
