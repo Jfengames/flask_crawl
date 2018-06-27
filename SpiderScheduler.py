@@ -12,8 +12,7 @@ from MapCrawler.spider_interface import custom_and_run
 
 
 from multiprocessing import Process
-from models import Dataoperation
-from exts import db
+from database import Scrape_Missions,db
 
 
 def crawler(mission,db):

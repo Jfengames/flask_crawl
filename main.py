@@ -8,8 +8,7 @@ import shutil
 from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
 from config import HOST,DB,PASSWD,PORT,USER
 import config
-from models import User,Adcode,Scenecode,Dataoperation
-from exts import db
+from database import User,Adcode,Scenecode,Scrape_Missions,db
 from decorators import login_required
 import json
 import pymysql
@@ -23,9 +22,6 @@ app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
 db.create_all(app=app)
-
-start_crawl_grid_file = 'start_grid.json'
-config_online = 'config_online.py'
 
 
 sc = SpiderScheduler()
@@ -118,10 +114,10 @@ def crawl():
             'b5792ffc8804de4d4fa32f0629849141',
             '5269848e5e9bb7e107b666d4e9e04401',
             ])     
-        dataoperation = Dataoperation(username=username,email=email,city=city,city_adcode=adcode,scene=scene,
-                                      type_code=scenecode,adsl_server_url=adsl_server_url,
-                                      adsl_auth=adsl_server_auth,keys=key,
-                                      status='not start yet')
+        dataoperation = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
+                                        type_code=scenecode, adsl_server_url=adsl_server_url,
+                                        adsl_auth=adsl_server_auth, keys=key,
+                                        status='not start yet')
 
         db.session.add(dataoperation)
         db.session.commit()
