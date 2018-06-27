@@ -16,6 +16,8 @@ import xlwt
 import os
 import time
 
+import SpiderScheduler
+
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
@@ -23,29 +25,30 @@ db.init_app(app)
 start_crawl_grid_file = 'start_grid.json'
 config_online = 'config_online.py'
 
+
+sc = SpiderScheduler()
+
 @app.route('/',methods=['GET','POST'])
 @login_required
 def index():
     if request.method == 'GET':
-        return render_template('index.html')
+        u=(1,2,3,4,5,6,7,8,9,10,11)
+        return render_template('index.html',u=u)
     else:
-        # scene = request.form.get('scene')
+        scene = request.form.get('scene')
         # scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         city = request.form.get('city')
-        print(city)
+
         adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
         conn = pymysql.connect(host='127.0.0.1', user='root', password='19900411', db='flaskr', charset='utf8')
         cur = conn.cursor()
         sql="""
             select * from {} where city_adcode={}
-            """.format('gaodemapscene_test',adcode)
-
+            """.format('gaodemapscene_test', adcode)
         cur.execute(sql)
         u = cur.fetchall()
-        if len(u)<10:
-            flash(message='没有有效数据，跳转到爬虫界面！')
-            time.sleep(3)
-            return redirect(url_for('crawl'))
+        if len(u) < 10:
+            return render_template('index.html', u=u, city=city, scene=scene)
         else:
             fields = cur.description
             workbook = xlwt.Workbook()
@@ -64,10 +67,10 @@ def index():
             workbook.save(r'./readout.xls')
 
             conn.close()
-            return render_template('index.html',u=u)
+            return render_template('index.html', u=u)
 
 
-@app.route('/crawl/',methods=['GET','POST'])
+@app.route('/crawl/',methods=['GET', 'POST'])
 @login_required
 def crawl():
 
@@ -90,12 +93,12 @@ def crawl():
         if adsl_server_auth:
             pass
         else:
-            adsl_server_auth=str(('adsl_proxy','changeProxyIp'))      
+            adsl_server_auth=','.join(['adsl_proxy','changeProxyIp'])
         key=request.form.get('KEY')
         if key:
             pass
         else:
-            key=str(['f628174cf3d63d9a3144590d81966cbd',
+            key=','.join(['f628174cf3d63d9a3144590d81966cbd',
             '6cb7b3226b79fb9643ea4a72678db2e0',
             '4565bb15cfb2ab3b5c8214c669361a39',
             '3847127c1073379835f87fb8c6e1c5c4',
@@ -118,52 +121,8 @@ def crawl():
         db.session.add(dataoperation)
         db.session.commit()
 
+        sc.update(dataoperation)
 
-
-        #log=''
-        _start={}
-
-        with open(start_crawl_grid_file, 'w') as fh:
-
-            _start['TYPES'] = str(scenecode)
-            _start['start_grid'] = 0
-
-            _start['CITY_ADCODE'] = "110101"
-            #str(adcode)
-            _start['resolution'] = 0.01
-            fh.write(json.dumps(_start))
-            fh.close()
-        shutil.move("C:/Users/X1Carbon/flask_crawl/MapService/start_grid.json","C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/start_grid.json")
-        
-        with open(config_online,'w') as py:
-            py.write("HOST = '127.0.0.1'\nPORT = 3306\nUSER = 'root'\nPASSWD =  '19900411'\nDB = 'flaskr'\nCHARSET = 'utf8'\n")
-            
-            py.write("ADSL_SERVER_URL = '"+adsl_server_url+"'\n")
-
-            py.write("ADSL_SERVER_AUTH = "+adsl_server_auth+"\n")
-            
-            py.write("KEYS = "+key+"\n")
-            py.write("MAIL_NOTIFY = True\n")
-            py.write("if MAIL_NOTIFY:\n")
-            py.write("      MAIL_CONFIG = {'fromaddr': '13910154640@139.com','to': ['13651272822@139.com'], 'passwd': 'Lteumts2018','server': 'smtp.139.com'}")
-            py.close()  
-        shutil.move("C:/Users/X1Carbon/flask_crawl/MapService/config_online.py","C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/config.py")
-        
-        with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/settings.py",'a') as st:
-            st.write("\nLOG_FILE = '"+str(adcode)+".log'")
-
-        os.chdir("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/")
-        os.system("python debug_run.py")
-        
-        #with open("C:/Users/X1Carbon/MapCrawler/MapCrawler/wulumuqi.log",'r') as f:
-        #with open("C:/Users/X1Carbon/MapCrawler/MapCrawler/"+str(adcode)+".log",'r') as f:
-        #    for i in f:
-        #        log += i
-    #        print(log)
-    #    system("mv config_online.py ../destop/config_online.py")
-        #print (app.config)    
-        #print(Adcode.query.filter(Adcode.city=city).first())   
-        
         return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode, scene=scene, scenecode=scenecode)
 
 @app.route('/something/')
@@ -181,7 +140,7 @@ def something():
 @app.route('/download/', methods=['GET'])
 def download_file():
     directory =os.getcwd()
-    print(directory)
+
     filename="readout.xls"
     return send_from_directory(directory,filename,as_attachment=True)
 
