@@ -6,6 +6,7 @@ Created on Wed Jun  6 15:44:20 2018
 """
 import shutil
 from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
+from config import HOST,DB,PASSWD,PORT,USER
 import config
 from models import User,Adcode,Scenecode,Dataoperation
 from exts import db
@@ -16,12 +17,18 @@ import xlwt
 import os
 import time
 
+from SpiderScheduler import SpiderScheduler
+
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
+db.create_all(app=app)
 
 start_crawl_grid_file = 'start_grid.json'
 config_online = 'config_online.py'
+
+
+sc = SpiderScheduler()
 
 @app.route('/',methods=['GET','POST'])
 @login_required
@@ -35,11 +42,11 @@ def index():
         city = request.form.get('city')
 
         adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
-        conn = pymysql.connect(host='127.0.0.1', user='root', password='19900411', db='flaskr', charset='utf8')
+        conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
         cur = conn.cursor()
         sql="""
             select * from {} where city_adcode={}
-            """.format('gaodemapscene_test', adcode)
+            """.format('GaodeMapScene', adcode)
         cur.execute(sql)
         u = cur.fetchall()
         if len(u) < 10:
@@ -88,12 +95,12 @@ def crawl():
         if adsl_server_auth:
             pass
         else:
-            adsl_server_auth=str(('adsl_proxy','changeProxyIp'))      
+            adsl_server_auth=','.join(['adsl_proxy','changeProxyIp'])
         key=request.form.get('KEY')
         if key:
             pass
         else:
-            key=str(['f628174cf3d63d9a3144590d81966cbd',
+            key=','.join(['f628174cf3d63d9a3144590d81966cbd',
             '6cb7b3226b79fb9643ea4a72678db2e0',
             '4565bb15cfb2ab3b5c8214c669361a39',
             '3847127c1073379835f87fb8c6e1c5c4',
@@ -111,65 +118,27 @@ def crawl():
             'b5792ffc8804de4d4fa32f0629849141',
             '5269848e5e9bb7e107b666d4e9e04401',
             ])     
-        dataoperation = Dataoperation(username=username,email=email,city=city,adcode=adcode,scene=scene,scenecode=scenecode,adsl_server_url=adsl_server_url,adsl_server_auth=adsl_server_auth,key=key)
+        dataoperation = Dataoperation(username=username,email=email,city=city,city_adcode=adcode,scene=scene,
+                                      type_code=scenecode,adsl_server_url=adsl_server_url,
+                                      adsl_auth=adsl_server_auth,keys=key,
+                                      status='not start yet')
 
         db.session.add(dataoperation)
         db.session.commit()
 
-        _start={}
+        sc.update(dataoperation)
 
-        with open(start_crawl_grid_file, 'w') as fh:
-
-            _start['TYPES'] = str(scenecode)
-            _start['start_grid'] = 0
-
-            _start['CITY_ADCODE'] = "110101"
-            #str(adcode)
-            _start['resolution'] = 0.01
-            fh.write(json.dumps(_start))
-            fh.close()
-        shutil.move("C:/Users/X1Carbon/flask_crawl/MapService/start_grid.json","C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/start_grid.json")
-        
-        with open(config_online,'w') as py:
-            py.write("HOST = '127.0.0.1'\nPORT = 3306\nUSER = 'root'\nPASSWD =  '19900411'\nDB = 'flaskr'\nCHARSET = 'utf8'\n")
-            
-            py.write("ADSL_SERVER_URL = '"+adsl_server_url+"'\n")
-
-            py.write("ADSL_SERVER_AUTH = "+adsl_server_auth+"\n")
-            
-            py.write("KEYS = "+key+"\n")
-            py.write("MAIL_NOTIFY = True\n")
-            py.write("if MAIL_NOTIFY:\n")
-            py.write("      MAIL_CONFIG = {'fromaddr': '13910154640@139.com','to': ['13651272822@139.com'], 'passwd': 'Lteumts2018','server': 'smtp.139.com'}")
-            py.close()  
-        shutil.move("C:/Users/X1Carbon/flask_crawl/MapService/config_online.py","C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/config.py")
-        
-        with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/settings.py",'a') as st:
-            st.write("\nLOG_FILE = '"+str(adcode)+".log'")
-
-        os.chdir("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/")
-        os.system("python debug_run.py")
-        
-        #with open("C:/Users/X1Carbon/MapCrawler/MapCrawler/wulumuqi.log",'r') as f:
-        #with open("C:/Users/X1Carbon/MapCrawler/MapCrawler/"+str(adcode)+".log",'r') as f:
-        #    for i in f:
-        #        log += i
-    #        print(log)
-    #    system("mv config_online.py ../destop/config_online.py")
-        #print (app.config)    
-        #print(Adcode.query.filter(Adcode.city=city).first())   
-        
         return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode, scene=scene, scenecode=scenecode)
 
 @app.route('/something/')
 @login_required
 def something():
-    log=''
-    with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/110000.log", 'r',encoding='UTF-8') as f:
-        for i in f:
-            log += i
-        return log
-
+    # log=''
+    # with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/110000.log", 'r',encoding='UTF-8') as f:
+    #     for i in f:
+    #         log += i
+    #     return log
+    return '后续修改'
 
 
 
