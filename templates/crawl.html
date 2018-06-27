@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block main %}
-    <form action="/" method="POST">
+    <form action="/crawl/" method="POST">
     <div class="form-group">
             <label for="scene">选择场景</label>
                 <select class="form-control" id="scenes" list="scenes" name="scene">
@@ -110,7 +110,7 @@ function refreash() {
     });
 
 }
-setInterval("refreash()",3000);
+{#setInterval("refreash()",3000);#}
 
 
 </script>

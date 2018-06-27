@@ -22,6 +22,7 @@ from SpiderScheduler import SpiderScheduler
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
+db.create_all(app=app)
 
 start_crawl_grid_file = 'start_grid.json'
 config_online = 'config_online.py'
@@ -117,7 +118,10 @@ def crawl():
             'b5792ffc8804de4d4fa32f0629849141',
             '5269848e5e9bb7e107b666d4e9e04401',
             ])     
-        dataoperation = Dataoperation(username=username,email=email,city=city,adcode=adcode,scene=scene,scenecode=scenecode,adsl_server_url=adsl_server_url,adsl_server_auth=adsl_server_auth,key=key)
+        dataoperation = Dataoperation(username=username,email=email,city=city,city_adcode=adcode,scene=scene,
+                                      type_code=scenecode,adsl_server_url=adsl_server_url,
+                                      adsl_auth=adsl_server_auth,keys=key,
+                                      status='not start yet')
 
         db.session.add(dataoperation)
         db.session.commit()
