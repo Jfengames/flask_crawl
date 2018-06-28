@@ -11,23 +11,11 @@ sys.path.append(spider_path)
 from MapCrawler.spider_interface import custom_and_run
 
 
-from multiprocessing import Process
+from multiprocessing import Process,Pool
 from database import Scrape_Missions,db
 
+from config import MAX_PROCESS
 
-def crawler(mission,db):
-    """
-    爬虫模拟
-    :param mission:
-    :param db:
-    :return:
-    """
-    print('mission:%s start using process id:%s'%(str(mission),os.getpid()))
-    time.sleep(60*2)
-    print('mission:%s finished. process id:%s'%(str(mission),os.getpid()))
-
-    mission.status = 'pass test'
-    db.session.commit()
 
 
 class SpiderScheduler():
@@ -36,20 +24,15 @@ class SpiderScheduler():
     method:
         update:调度器更新，在添加新爬虫任务会调用，通知调度器更新任务，返回值为“running”或者”pending“，表示开始执行，或者挂起了
         start_a_spider: 启动一个新进程，调度一个任务
-        after_close: 爬虫结束，更新数据库的状态
-        schedule: 根据队列情况，调度任务
 
 
     """
-    MAX_PROCESS = 2
 
     def __init__(self):
         """
         获取数据库中所有未完成的任务，并开始
         """
-        # self.missions = CrawlerMission.query.filter(CrawlerMission.status!='finished').all()
-        # self.scheduling = True
-        # self.schedule()
+        self.pool = Pool(processes=MAX_PROCESS)
         self.missions_running = 0
 
 
@@ -61,32 +44,33 @@ class SpiderScheduler():
         """
         if not mission:
             # 没有指定
-            mission = Dataoperation.query.filter(Dataoperation.status!='finished').first()
+            mission = Scrape_Missions.query.filter(Scrape_Missions.status=='not start yet').first()
 
-        if self.missions_running < self.MAX_PROCESS:
-            # 有可用进程
-            self._update(mission,db)
-            status = 'running'
-        else:
-            status = 'pending'
+        status = self._update(mission,db)
 
-        # # 如果有可用资源，则把剩下的资源都用尽
-        # num = self.MAX_PROCESS - self.missions_running
-        # if num >0:
-        #     missions = CrawlerMission.query.filter(CrawlerMission.status not in ['finished','running']).limit(num).all()
-        #     for m in missions:
-        #         self._update(m,db)
 
-        # 指定的任务状态
+        # 看看有没有其他没有执行完的任务
+        other_missions = Scrape_Missions.query.filter(Scrape_Missions.status=='not start yet').all()
+        for one in other_missions:
+            self._update(one,db)
+
         return status
 
 
-    def _update(self,mission,db):
-        mission.status = 'running'
-        db.session.commit()
-        self.start_a_spider(mission,db)
-        self.missions_running += 1
 
+    def _update(self,mission,db):
+
+        running_missions = Scrape_Missions.query.filter(Scrape_Missions.adsl_server_url==mission.adsl_server_url)\
+                                .filter(Scrape_Missions.status=='running').all()
+
+        if len(running_missions)>=1:
+            # 该ADSL服务器已被使用
+            # 需要暂停直到ADSL资源释放
+            return '该ASDL正在使用，请改天再试'
+
+        else:
+            self.start_a_spider(mission,db)
+            return '开始爬取'
 
 
     def start_a_spider(self,mission,db):
@@ -109,46 +93,14 @@ class SpiderScheduler():
                  'LOG_LEVEL':'INFO',
                  # 'LOG_FILE':mission.city_adcode+'-'+mission.type_code+'.log'
                  }
-        proc = Process(target=custom_and_run,args=(paras,spider_path))
-        proc.start()
-        print('已调度新进程')
+        # proc = Process(target=custom_and_run,args=(paras,spider_path))
+        self.pool.apply_async(func=custom_and_run,args=(paras,spider_path))
+        print('已调度新进程:%s-%s'%(paras['city_adcode'],paras['type_code']))
+        mission.status = 'running'
+        db.session.commit()
 
 
 
-    def after_close(self,mission,status,grid):
-        """
-        爬虫结束，根据结束原因更新数据库状态，并再更细
-        :param mission: 任务对象
-        :param status： 状态
-        :return:
-        """
-        self.missions_running -= 1
-        assert self.missions_running >=0, 'mission_running只应该大于0'
-
-        # 更新数据库状态
-        # 数据库状态由爬虫自行更改
-        # mission.status = status
-        # mission.final_grid = grid
-        # db.session.commit()
-
-    # def schedule(self):
-    #     """
-    #     根据队列情况，调度任务
-    #
-    #     :return:
-    #     """
-    #     while True:
-    #         if self.missions_running < self.MAX_PROCESS:
-    #             # 有可用进程
-    #             try:
-    #                 m = self.missions.pop()
-    #                 self.start_a_spider(m)
-    #                 self.missions_running+=1
-    #             except IndexError:
-    #                 # 队列中已无数据
-    #                 break
-    #
-    #     self.scheduling = False
 
 if __name__ == '__main__':
     sc = SpiderScheduler()

@@ -114,17 +114,23 @@ def crawl():
             'b5792ffc8804de4d4fa32f0629849141',
             '5269848e5e9bb7e107b666d4e9e04401',
             ])     
-        dataoperation = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
+        mission = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
                                         type_code=scenecode, adsl_server_url=adsl_server_url,
                                         adsl_auth=adsl_server_auth, keys=key,
                                         status='not start yet')
 
-        db.session.add(dataoperation)
+        # 判断是否有重复的任务
+        if Scrape_Missions.query.filter_by(city_adcode=mission.city_adcode,type_code=mission.type_code).all():
+            return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
+                               scene=scene, scenecode=scenecode,msg='任务已经在队列中，等待进行')
+
+        db.session.add(mission)
         db.session.commit()
 
-        sc.update(dataoperation)
+        msg = sc.update(mission)
 
-        return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode, scene=scene, scenecode=scenecode)
+        return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
+                               scene=scene, scenecode=scenecode,msg=msg)
 
 @app.route('/something/')
 @login_required

@@ -33,7 +33,7 @@ class Scenecode(db.Model):
 
 class Scrape_Missions(db.Model):
     __tablename__ = 'scrape_missions'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, autoincrement=True)
     username = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     city = db.Column(db.String(50), nullable=False)
