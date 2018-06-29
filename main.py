@@ -46,39 +46,24 @@ def show():
     city = request.args.get('city')
     scene = request.args.get('scene')
     adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
+    type_code = Scenecode.query.filter(Scenecode.scene == scene).one().scenecode
+    while not type_code%10:
+        type_code //= 10
+
     conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
     cur = conn.cursor()
     sql_limit="""
-            select * from {} where city_adcode={} limit 100
-            """.format('GaodeMapScene', adcode)
+            select * from {} where city_adcode={} and typecode like '{}%'limit 20
+            """.format('GaodeMapScene', adcode,type_code)
     cur.execute(sql_limit)
     scrape_res = cur.fetchall()
+    conn.close()
+
     if len(scrape_res) < 10:
         return render_template('show.html', scrape_res=scrape_res, city=city, scene=scene)
     else:
-        sql="""
-            select * from {} where city_adcode={}
-            """.format('GaodeMapScene', adcode)
-        cur.execute(sql)
-        scrape_res = cur.fetchall()
-        fields = cur.description
-        workbook = xlwt.Workbook()
-        sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
 
-        # 写上字段信息
-        for field in range(0, len(fields)):
-            sheet.write(0, field, fields[field][0])
-
-        # 获取并写入数据段信息
-
-        for row in range(1, len(scrape_res) + 1):
-            for col in range(0, len(fields)):
-                sheet.write(row, col, u'%s' % scrape_res[row - 1][col])
-
-        workbook.save(r'./readout.xls')
-
-        conn.close()
-        return render_template('show.html', scrape_res=scrape_res)
+        return render_template('show.html', scrape_res=scrape_res, city=city, scene=scene)
 
 
 
@@ -163,7 +148,38 @@ def reconfirm():
 
 
 @app.route('/download/', methods=['GET'])
-def download_file():
+@login_required
+def download():
+
+    city = request.args.get('city')
+    scene = request.args.get('scene')
+    adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
+    type_code = Scenecode.query.filter(Scenecode.scene == scene).one().scenecode
+    while not type_code%10:
+        type_code //= 10
+    conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
+    cur = conn.cursor()
+    sql="""
+            select * from {} where city_adcode={} and typecode like '{}%'
+            """.format('GaodeMapScene', adcode, type_code)
+    cur.execute(sql)
+    total_res = cur.fetchall()
+    fields = cur.description
+    workbook = xlwt.Workbook()
+    sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
+
+    # 写上字段信息
+    for field in range(0, len(fields)):
+        sheet.write(0, field, fields[field][0])
+
+    # 获取并写入数据段信息
+
+    for row in range(1, len(total_res) + 1):
+        for col in range(0, len(fields)):
+            sheet.write(row, col, u'%s' % total_res[row - 1][col])
+
+    workbook.save(r'./readout.xls')
+    conn.close()
     directory =os.getcwd()
 
     filename="readout.xls"

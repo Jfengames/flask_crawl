@@ -80,7 +80,7 @@
 </form>
 <form action="/download/",method="GET">
     <input type="button" class="btn btn-primary"
-   	data-toggle="button" name="download" value="Download" onclick="location.href='{{ url_for('download_file')}}'">
+   	data-toggle="button" name="download" value="Download" onclick="location.href='{{ url_for('download',scene=scene,city=city)}}'">
 </form>
 
 <script>
