@@ -23,7 +23,6 @@ app.config.from_object(config)
 db.init_app(app)
 db.create_all(app=app)
 
-
 sc = SpiderScheduler()
 
 @app.route('/',methods=['GET','POST'])
@@ -49,14 +48,19 @@ def show():
     adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
     conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
     cur = conn.cursor()
-    sql="""
-            select * from {} where city_adcode={}
+    sql_limit="""
+            select * from {} where city_adcode={} limit 100
             """.format('GaodeMapScene', adcode)
-    cur.execute(sql)
+    cur.execute(sql_limit)
     scrape_res = cur.fetchall()
     if len(scrape_res) < 10:
         return render_template('show.html', scrape_res=scrape_res, city=city, scene=scene)
     else:
+        sql="""
+            select * from {} where city_adcode={}
+            """.format('GaodeMapScene', adcode)
+        cur.execute(sql)
+        scrape_res = cur.fetchall()
         fields = cur.description
         workbook = xlwt.Workbook()
         sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
@@ -155,17 +159,6 @@ def reconfirm():
                                    msg=g.mission.msg)
         else:
             return render_template('show.html',scene=g.mission.scene,city=g.mission.city)
-
-@app.route('/something/')
-@login_required
-def something():
-    global adcode
-    global scenecode
-    log=''
-    with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/%s-%s.log"%(adcode,scenecode), 'r',encoding='UTF-8') as f:
-        for i in f:
-            log += i
-        return log
 
 
 
