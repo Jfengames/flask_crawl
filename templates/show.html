@@ -1,0 +1,78 @@
+{% extends 'base.html'%}
+
+{% block title %}首页{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css') }}">
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{% endblock %}
+
+{% block main %}
+
+
+<form action="/" method="POST">
+        <div class="form-group">
+            <label for="scenes">{{ scene }}</label>
+            <label for="citys">{{ city }}</label>
+        </div>
+
+        <input type="submit" class="btn btn-default">
+            <div class="table-responsive" >
+                <table class="table table-striped table-sm">
+                 <caption>数据库数据</caption>
+                <thead>
+                    <tr>
+                    <th>id</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>名称</th>
+                    <th>城市代码</th>
+                    <th>区县</th>
+                    <th>地址</th>
+                    <th>经度</th>
+                    <th>纬度</th>
+                    <th>大类</th>
+                    <th>小类代码</th>
+                    <th>小类</th>
+                    <th>面积</th>
+                    <th>形状</th>
+                    <th>格式化经度</th>
+                    <th>格式化纬度</th>
+                    <th>格式化形状</th>
+                    </tr>
+                </thead>
+                {% if not scrape_res %}
+                    <script type="text/javascript">
+                          var r=confirm("还未爬取"+"{{ city }}"+"{{ scene }}"+"场景，是否跳转到爬虫界面");
+                          if (r==true)
+                            {
+                            window.location.href='{{ url_for('crawl')}}';
+                            }
+                          else
+                            {
+                            }
+                    </script>
+                {% else %}
+                    {% for i in scrape_res %}
+                        <tr>
+                            {% for j in len(i) %}
+                                <td>{{ i[j] }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                </table>
+            </div>
+</form>
+<form action="/download/",method="GET">
+    <input type="button" class="btn btn-primary"
+   	data-toggle="button" name="download" value="Download" onclick="location.href='{{ url_for('download_file')}}'">
+</form>
+
+<script>
+$(function() {
+    $(".dropdown-toggle").dropdown('toggle');
+});
+</script>
+{% endblock %}

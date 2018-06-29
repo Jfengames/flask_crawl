@@ -6,7 +6,7 @@ Created on Wed Jun  6 15:44:20 2018
 """
 import shutil
 from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
-from config import HOST,DB,PASSWD,PORT,USER
+from config import HOST,DB,PASSWD,PORT,USER,KEYS
 import config
 from database import User,Adcode,Scenecode,Scrape_Missions,db
 from decorators import login_required
@@ -30,42 +30,50 @@ sc = SpiderScheduler()
 @login_required
 def index():
     if request.method == 'GET':
-        u=(1,2,3,4,5,6,7,8,9,10,11)
-        return render_template('index.html',u=u)
+
+        return render_template('index.html')
     else:
         scene = request.form.get('scene')
         # scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         city = request.form.get('city')
+        return render_template('show.html',scene=scene,city=city)
 
-        adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
-        conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
-        cur = conn.cursor()
-        sql="""
+
+@app.route('/show/',methods=['GET','POST'])
+@login_required
+def show(scene,city):
+
+    adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
+    conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
+    cur = conn.cursor()
+    sql="""
             select * from {} where city_adcode={}
             """.format('GaodeMapScene', adcode)
-        cur.execute(sql)
-        u = cur.fetchall()
-        if len(u) < 10:
-            return render_template('index.html', u=u, city=city, scene=scene)
-        else:
-            fields = cur.description
-            workbook = xlwt.Workbook()
-            sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
+    cur.execute(sql)
+    scrape_res = cur.fetchall()
+    if len(scrape_res) < 10:
+        return render_template('index.html', scrape_res=scrape_res, city=city, scene=scene)
+    else:
+        fields = cur.description
+        workbook = xlwt.Workbook()
+        sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
 
-            # 写上字段信息
-            for field in range(0, len(fields)):
-                sheet.write(0, field, fields[field][0])
+        # 写上字段信息
+        for field in range(0, len(fields)):
+            sheet.write(0, field, fields[field][0])
 
-            # 获取并写入数据段信息
+        # 获取并写入数据段信息
 
-            for row in range(1, len(u) + 1):
-                for col in range(0, len(fields)):
-                    sheet.write(row, col, u'%s' % u[row - 1][col])
+        for row in range(1, len(scrape_res) + 1):
+            for col in range(0, len(fields)):
+                sheet.write(row, col, u'%s' % scrape_res[row - 1][col])
 
-            workbook.save(r'./readout.xls')
+        workbook.save(r'./readout.xls')
 
-            conn.close()
-            return render_template('index.html', u=u)
+        conn.close()
+        return render_template('index.html', scrape_res=scrape_res)
+
+
 
 
 @app.route('/crawl/',methods=['GET', 'POST'])
@@ -83,46 +91,33 @@ def crawl():
         scene = request.form.get('scene')
         scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         adsl_server_url = request.form.get('ADSL_SERVER_URL')
-        if adsl_server_url:
-            pass
-        else:
+        if not adsl_server_url:
             adsl_server_url='http://223.105.3.170:18888'
+
         adsl_server_auth = request.form.get('ADSL_SERVER_AUTH')
-        if adsl_server_auth:
-            pass
-        else:
+        if not adsl_server_auth:
             adsl_server_auth=','.join(['adsl_proxy','changeProxyIp'])
+
         key=request.form.get('KEY')
-        if key:
-            pass
-        else:
-            key=','.join(['f628174cf3d63d9a3144590d81966cbd',
-            '6cb7b3226b79fb9643ea4a72678db2e0',
-            '4565bb15cfb2ab3b5c8214c669361a39',
-            '3847127c1073379835f87fb8c6e1c5c4',
-            '4e5b51a0ded99bd48363c3b75513a9fa',
-            'df59636dada982e67fd0b599bba7a41a',
-            '2a9c2dfb77af7d7b976c79e182d8d997',
-            'fdf44b4a0e0925eead65fd17f2ffca2c',
-            '3b5d262ae5b34061492d2bbb0efc9b74',
-            '45d67ce8463c9a05bf175d718ed25330',
-            'b1135364d5666872c1433f8f07b9740f',
-            '59c8fc9fc15e0668e8b3dc1e2d2624a0',
-            '36e7680730f3cd7e195c14b377643f4e',
-            '27fdea7e7243f726f8a9d657806e19c7',
-            '5269848e5e9bb7e107b666d4e9e04401',
-            'b5792ffc8804de4d4fa32f0629849141',
-            '5269848e5e9bb7e107b666d4e9e04401',
-            ])     
+        if not key:
+            key=','.join(KEYS)
+
+        final_gird = request.form.get('final_grid')
+        if not final_gird:
+            final_gird = 0
+
+
         mission = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
                                         type_code=scenecode, adsl_server_url=adsl_server_url,
-                                        adsl_auth=adsl_server_auth, keys=key,
+                                        adsl_auth=adsl_server_auth, keys=key,final_grid=final_gird,
                                         status='not start yet')
 
         # 判断是否有重复的任务
-        if Scrape_Missions.query.filter_by(city_adcode=mission.city_adcode,type_code=mission.type_code).all():
-            return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
-                               scene=scene, scenecode=scenecode,msg='任务已经在队列中，等待进行')
+        exist_mission =  Scrape_Missions.query.filter_by(city_adcode=mission.city_adcode,type_code=mission.type_code).all()
+
+        if not exist_mission:
+            return render_template("reconform.html",exist_mission,mission)
+
 
         db.session.add(mission)
         db.session.commit()
@@ -131,6 +126,25 @@ def crawl():
 
         return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
                                scene=scene, scenecode=scenecode,msg=msg)
+
+@app.route('/reconform/',methods=['GET','POST'])
+@login_required
+def reconform():
+    if request.method == 'GET':
+        # 显示元原任务详情以及当前任务详情
+        pass;
+    else:
+        conformed = request.form.get('conformed')
+        if conformed:
+            #重新调度 任务
+            db.session.add(mission)
+            db.session.commit()
+
+            msg = sc.update(mission)
+
+            return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
+                                   scene=scene, scenecode=scenecode,msg=msg)
+
 
 @app.route('/something/')
 @login_required
