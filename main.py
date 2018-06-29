@@ -6,7 +6,7 @@ Created on Wed Jun  6 15:44:20 2018
 """
 import shutil
 from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
-from config import HOST,DB,PASSWD,PORT,USER
+from config import HOST,DB,PASSWD,PORT,USER,ADSL_SERVER_AUTH,ADSL_SERVER_URL,KEY
 import config
 from models import User,Adcode,Scenecode,Dataoperation
 from exts import db
@@ -46,7 +46,7 @@ def index():
         cur = conn.cursor()
         sql="""
             select * from {} where city_adcode={}
-            """.format('GaodeMapScene', adcode)
+            """.format('GaodeMapScene_test', adcode)
         cur.execute(sql)
         u = cur.fetchall()
         if len(u) < 10:
@@ -83,8 +83,10 @@ def crawl():
         username = user.username
         email = user.email
         city = request.form.get('city') 
+        global adcode
         adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
         scene = request.form.get('scene')
+        global scenecode
         scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         adsl_server_url = request.form.get('ADSL_SERVER_URL')
         if adsl_server_url:
@@ -128,17 +130,23 @@ def crawl():
 
         sc.update(dataoperation)
 
-        return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode, scene=scene, scenecode=scenecode)
+        log = ''
+        with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/%s-%s.log"%(adcode,scenecode), 'r', encoding='UTF-8') as f:
+            for i in f:
+                log += i
+
+        return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode, scene=scene, scenecode=scenecode,log=log)
 
 @app.route('/something/')
 @login_required
 def something():
-    # log=''
-    # with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/110000.log", 'r',encoding='UTF-8') as f:
-    #     for i in f:
-    #         log += i
-    #     return log
-    return '后续修改'
+    global adcode
+    global scenecode
+    log=''
+    with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/%s-%s.log"%(adcode,scenecode), 'r',encoding='UTF-8') as f:
+        for i in f:
+            log += i
+        return log
 
 
 
