@@ -8,8 +8,7 @@ import shutil
 from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
 from config import HOST,DB,PASSWD,PORT,USER,ADSL_SERVER_AUTH,ADSL_SERVER_URL,KEY
 import config
-from models import User,Adcode,Scenecode,Dataoperation
-from exts import db
+from database import User,Adcode,Scenecode,Scrape_Missions,db
 from decorators import login_required
 import json
 import pymysql
@@ -23,9 +22,6 @@ app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
 db.create_all(app=app)
-
-start_crawl_grid_file = 'start_grid.json'
-config_online = 'config_online.py'
 
 
 sc = SpiderScheduler()
@@ -99,43 +95,32 @@ def crawl():
         else:
             adsl_server_auth=','.join(['adsl_proxy','changeProxyIp'])
         key=request.form.get('KEY')
-        if key:
-            pass
-        else:
-            key=','.join(['f628174cf3d63d9a3144590d81966cbd',
-            '6cb7b3226b79fb9643ea4a72678db2e0',
-            '4565bb15cfb2ab3b5c8214c669361a39',
-            '3847127c1073379835f87fb8c6e1c5c4',
-            '4e5b51a0ded99bd48363c3b75513a9fa',
-            'df59636dada982e67fd0b599bba7a41a',
-            '2a9c2dfb77af7d7b976c79e182d8d997',
-            'fdf44b4a0e0925eead65fd17f2ffca2c',
-            '3b5d262ae5b34061492d2bbb0efc9b74',
-            '45d67ce8463c9a05bf175d718ed25330',
-            'b1135364d5666872c1433f8f07b9740f',
-            '59c8fc9fc15e0668e8b3dc1e2d2624a0',
-            '36e7680730f3cd7e195c14b377643f4e',
-            '27fdea7e7243f726f8a9d657806e19c7',
-            '5269848e5e9bb7e107b666d4e9e04401',
-            'b5792ffc8804de4d4fa32f0629849141',
-            '5269848e5e9bb7e107b666d4e9e04401',
-            ])     
-        dataoperation = Dataoperation(username=username,email=email,city=city,city_adcode=adcode,scene=scene,
-                                      type_code=scenecode,adsl_server_url=adsl_server_url,
-                                      adsl_auth=adsl_server_auth,keys=key,
-                                      status='not start yet')
 
-        db.session.add(dataoperation)
+        if not key:
+            key=','.join(KEY)
+
+        mission = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
+                                        type_code=scenecode, adsl_server_url=adsl_server_url,
+                                        adsl_auth=adsl_server_auth, keys=key,
+                                        status='not start yet')
+
+        # 判断是否有重复的任务
+        if Scrape_Missions.query.filter_by(city_adcode=mission.city_adcode,type_code=mission.type_code).all():
+            return render_template("reconfirm.html", username=username, email=email, city=city, adcode=adcode,
+                               scene=scene, scenecode=scenecode)
+
+        db.session.add(mission)
         db.session.commit()
 
-        sc.update(dataoperation)
+        msg = sc.update(mission)
 
         log = ''
         with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/%s-%s.log"%(adcode,scenecode), 'r', encoding='UTF-8') as f:
             for i in f:
                 log += i
 
-        return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode, scene=scene, scenecode=scenecode,log=log)
+        return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
+                               scene=scene, scenecode=scenecode,msg=msg)
 
 @app.route('/something/')
 @login_required
