@@ -5,8 +5,8 @@ Created on Wed Jun  6 15:44:20 2018
 @author: X1Carbon
 """
 import shutil
-from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash
-from config import HOST,DB,PASSWD,PORT,USER,KEYS
+from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash,g
+from config import HOST,DB,PASSWD,PORT,USER,ADSL_SERVER_AUTH,ADSL_SERVER_URL,KEYS
 import config
 from database import User,Adcode,Scenecode,Scrape_Missions,db
 from decorators import login_required
@@ -36,13 +36,16 @@ def index():
         scene = request.form.get('scene')
         # scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         city = request.form.get('city')
-        return render_template('show.html',scene=scene,city=city)
+        # return redirect(url_for('show'),scene=scene,city=city)
+        # return show(scene,city)
+        return redirect(url_for('show',scene=scene,city=city))
 
 
 @app.route('/show/',methods=['GET','POST'])
 @login_required
-def show(scene,city):
-
+def show():
+    city = request.args.get('city')
+    scene = request.args.get('scene')
     adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
     conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
     cur = conn.cursor()
@@ -52,7 +55,7 @@ def show(scene,city):
     cur.execute(sql)
     scrape_res = cur.fetchall()
     if len(scrape_res) < 10:
-        return render_template('index.html', scrape_res=scrape_res, city=city, scene=scene)
+        return render_template('show.html', scrape_res=scrape_res, city=city, scene=scene)
     else:
         fields = cur.description
         workbook = xlwt.Workbook()
@@ -71,7 +74,7 @@ def show(scene,city):
         workbook.save(r'./readout.xls')
 
         conn.close()
-        return render_template('index.html', scrape_res=scrape_res)
+        return render_template('show.html', scrape_res=scrape_res)
 
 
 
@@ -87,8 +90,10 @@ def crawl():
         username = user.username
         email = user.email
         city = request.form.get('city') 
+        global adcode
         adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
         scene = request.form.get('scene')
+        global scenecode
         scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
         adsl_server_url = request.form.get('ADSL_SERVER_URL')
         if not adsl_server_url:
@@ -107,35 +112,37 @@ def crawl():
             final_gird = 0
 
 
-        mission = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
+        g.mission = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
                                         type_code=scenecode, adsl_server_url=adsl_server_url,
                                         adsl_auth=adsl_server_auth, keys=key,final_grid=final_gird,
                                         status='not start yet')
 
         # 判断是否有重复的任务
-        exist_mission =  Scrape_Missions.query.filter_by(city_adcode=mission.city_adcode,type_code=mission.type_code).all()
+        g.exist_mission =  Scrape_Missions.query.filter_by(city_adcode=g.mission.city_adcode,type_code=g.mission.type_code).all()
 
-        if not exist_mission:
-            return render_template("reconform.html",exist_mission,mission)
+        if g.exist_mission:
+            return render_template("reconfirm.html",exist_mission=g.exist_mission,mission=g.mission)
+
+        else:
+            db.session.add(g.mission)
+            db.session.commit()
+
+            msg = sc.update(g.mission)
 
 
-        db.session.add(mission)
-        db.session.commit()
+            return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
+                                   scene=scene, scenecode=scenecode,msg=msg)
 
-        msg = sc.update(mission)
 
-        return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
-                               scene=scene, scenecode=scenecode,msg=msg)
-
-@app.route('/reconform/',methods=['GET','POST'])
+@app.route('/reconfirm/',methods=['GET','POST'])
 @login_required
-def reconform():
+def reconfirm():
     if request.method == 'GET':
         # 显示元原任务详情以及当前任务详情
-        pass;
+        return render_template('reconfirm.html',exist_mission=g.exist_mission,mission=g.mission)
     else:
-        conformed = request.form.get('conformed')
-        if conformed:
+        conformed = request.form.get('conform')
+        if conformed == 'yes':
             #重新调度 任务
             db.session.add(mission)
             db.session.commit()
@@ -144,17 +151,19 @@ def reconform():
 
             return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
                                    scene=scene, scenecode=scenecode,msg=msg)
-
+        else:
+            return render_template('show.html',scene=scene,city=city)
 
 @app.route('/something/')
 @login_required
 def something():
-    # log=''
-    # with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/MapCrawler/110000.log", 'r',encoding='UTF-8') as f:
-    #     for i in f:
-    #         log += i
-    #     return log
-    return '后续修改'
+    global adcode
+    global scenecode
+    log=''
+    with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/%s-%s.log"%(adcode,scenecode), 'r',encoding='UTF-8') as f:
+        for i in f:
+            log += i
+        return log
 
 
 

@@ -1,0 +1,28 @@
+{% extends 'base.html'%}
+
+{% block title %}确认页{% endblock %}
+
+{% block head %}
+{#    <link rel="stylesheet" href="{{ url_for('static',filename='css/reconfirm.css') }}">#}
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{% endblock %}
+
+{% block main %}
+    <form action="" method="post">
+        <div class="form-container">
+            <div class="form-group">
+                <p>当前已有任务：{{ exist_mission.city }}{{ exist_mission.scene }}{{ exist_mission.status }}{{ exist_mission.final_grid }}</p>
+            </div>
+            <div>
+                你的新任务：{{ mission.city }}{{ mission.scene }}{{ mission.status }}{{ mission.final_grid }}
+            </div>
+
+            <div class="btn-group" role="group" aria-label="...">是否重新爬取：
+                <input type="button" class="btn btn-default" name="confirm" value="yes">是</button>
+                <input type="button" class="btn btn-default" name="confirm" value="no">否</button>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

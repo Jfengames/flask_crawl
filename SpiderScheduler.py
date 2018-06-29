@@ -6,10 +6,11 @@
 """
 import time
 import sys
-spider_path = '/home/henry/proj/MapCrawler/'
-sys.path.append(spider_path)
+from config import SPIDER_PATH
+sys.path.append(SPIDER_PATH)
 from MapCrawler.spider_interface import custom_and_run
 
+import os
 
 from multiprocessing import Process,Pool
 from database import Scrape_Missions,db
@@ -90,11 +91,11 @@ class SpiderScheduler():
                  'final_grid':mission.final_grid,
                  'status':mission.status,
                  'resolution':mission.resolution,
-                 'LOG_LEVEL':'INFO',
-                 # 'LOG_FILE':mission.city_adcode+'-'+mission.type_code+'.log'
+                 'LOG_LEVEL':'DEBUG',
+                 'LOG_FILE':mission.city_adcode+'-'+mission.type_code+'.log'
                  }
         # proc = Process(target=custom_and_run,args=(paras,spider_path))
-        self.pool.apply_async(func=custom_and_run,args=(paras,spider_path))
+        self.pool.apply_async(func=custom_and_run,args=(paras,SPIDER_PATH))
         print('已调度新进程:%s-%s'%(paras['city_adcode'],paras['type_code']))
         mission.status = 'running'
         db.session.commit()

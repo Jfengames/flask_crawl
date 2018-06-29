@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block main %}
-    <form action="/crawl/" method="POST">
+    <form action="" method="POST">
     <div class="form-group">
             <label for="scene">选择场景</label>
                 <select class="form-control" id="scenes" list="scenes" name="scene">
@@ -86,6 +86,7 @@
     用户名：{{username}}
     邮箱：{{email}}
     爬取{{city}}{{scene}}场景
+    {{ log }}
     状态:{{ msg }}
 </div>
 
@@ -114,7 +115,7 @@ function refreash() {
     });
 
 }
-{#setInterval("refreash()",3000);#}
+//setInterval("refreash()",3000);
 
 
 </script>
