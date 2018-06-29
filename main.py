@@ -144,15 +144,17 @@ def reconfirm():
         conformed = request.form.get('conform')
         if conformed == 'yes':
             #重新调度 任务
-            db.session.add(mission)
+            db.session.add(g.mission)
             db.session.commit()
 
-            msg = sc.update(mission)
+            msg = sc.update(g.mission)
 
-            return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
-                                   scene=scene, scenecode=scenecode,msg=msg)
+            return render_template("crawl.html", username=g.mission.username, email=g.mission.email,
+                                   city=g.mission.city, adcode=g.mission.adcode,
+                                   scene=g.mission.scene, scenecode=g.mission.scenecode,
+                                   msg=g.mission.msg)
         else:
-            return render_template('show.html',scene=scene,city=city)
+            return render_template('show.html',scene=g.mission.scene,city=g.mission.city)
 
 @app.route('/something/')
 @login_required
