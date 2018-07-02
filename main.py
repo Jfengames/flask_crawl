@@ -23,8 +23,9 @@ app.config.from_object(config)
 db.init_app(app)
 db.create_all(app=app)
 
+if __name__ == '__main__':
+    sc = SpiderScheduler()
 
-sc = SpiderScheduler()
 
 @app.route('/',methods=['GET','POST'])
 @login_required
@@ -51,7 +52,7 @@ def show():
     cur = conn.cursor()
     sql="""
             select * from {} where city_adcode={}
-            """.format('GaodeMapScene', adcode)
+            """.format('GaodeMapScene_test', adcode)
     cur.execute(sql)
     scrape_res = cur.fetchall()
     if len(scrape_res) < 10:
@@ -71,7 +72,7 @@ def show():
             for col in range(0, len(fields)):
                 sheet.write(row, col, u'%s' % scrape_res[row - 1][col])
 
-        workbook.save(r'./readout.xls')
+        workbook.save(r'readout.xls')
 
         conn.close()
         return render_template('show.html', scrape_res=scrape_res)
@@ -144,15 +145,15 @@ def reconfirm():
         conformed = request.form.get('conform')
         if conformed == 'yes':
             #重新调度 任务
-            db.session.add(mission)
+            db.session.add(g.mission)
             db.session.commit()
 
-            msg = sc.update(mission)
+            msg = sc.update(g.mission)
 
-            return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
-                                   scene=scene, scenecode=scenecode,msg=msg)
+            return render_template("crawl.html", username=g.mission.username, email=g.mission.email, city=g.mission.city, adcode=g.mission.adcode,
+                                   scene=g.mission.scene, scenecode=scenecode,msg=msg)
         else:
-            return render_template('show.html',scene=scene,city=city)
+            return render_template('show.html',scene=g.mission.scene,city=g.mission.city)
 
 @app.route('/something/')
 @login_required
@@ -193,25 +194,27 @@ def login():
 
 @app.route('/regist/',methods=['GET','POST'])
 def regist():
-    if request.method == 'GET':
-        return render_template('regist.html')
-    else:
-        email = request.form.get('email')
-        username = request.form.get('username')
-        password1 = request.form.get('password1')
-        password2 = request.form.get('password2')
-        
-        user = User.query.filter(User.email == email).first()
-        if user:
-            return u'该邮箱已经注册！'
-        else:
-            if password1 != password2:
-                return u'两次密码不相同！'
-            else:
-                user = User(email=email,username=username,password=password1)
-                db.session.add(user)
-                db.session.commit()
-                return redirect(url_for('login'))
+    # if request.method == 'GET':
+    #     return render_template('regist.html')
+    # else:
+    #     email = request.form.get('email')
+    #     username = request.form.get('username')
+    #     password1 = request.form.get('password1')
+    #     password2 = request.form.get('password2')
+    #
+    #     user = User.query.filter(User.email == email).first()
+    #     if user:
+    #         return u'该邮箱已经注册！'
+    #     else:
+    #         if password1 != password2:
+    #             return u'两次密码不相同！'
+    #         else:
+    # user = User(email=email,username=username,password=password1)
+    # db.session.add(user)
+    # db.session.commit()
+        return "该平台关闭注册，请通知管理员给你分配密码,3秒后跳回登录界面"
+        time.sleep(3)
+        return redirect(url_for('login'))
 
 @app.route('/logout/')
 def logout():
