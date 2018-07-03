@@ -9,18 +9,20 @@
 {% endblock %}
 
 {% block main %}
-    <form action="" method="post">
+    <form action={{ url_for('reconfirm') }} method="POST">
         <div class="form-container">
             <div class="form-group">
-                <p>当前已有任务：{{ exist_mission.city }}{{ exist_mission.scene }}{{ exist_mission.status }}{{ exist_mission.final_grid }}</p>
+                <p>当前已有任务：{{ exist_mission.city }} {{ exist_mission.scene }} {{ exist_mission.status }} {{ exist_mission.final_grid }}</p>
             </div>
             <div>
-                你的新任务：{{ mission.city }}{{ mission.scene }}{{ mission.status }}{{ mission.final_grid }}
+                你的新任务：{{ mission.city }} {{ mission.scene }} {{ mission.status }} {{ mission.final_grid }}
             </div>
 
             <div class="btn-group" role="group" aria-label="..."><p>是否重新爬取：</p>
-                <input type="button" class="btn btn-default" name="confirm" value="yes"></button>
-                <input type="button" class="btn btn-default" name="confirm" value="no"></button>
+{#                <input type="button" class="btn btn-default" name="confirm" value="yes">#}
+{#                <input type="button" class="btn btn-default" name="confirm" value="no">#}
+                <button class="btn btn-default" name="confirm" value="yes">yes</button>
+                <button class="btn btn-default" name="confirm" value="no">no</button>
             </div>
         </div>
     </form>

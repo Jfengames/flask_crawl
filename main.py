@@ -23,8 +23,7 @@ app.config.from_object(config)
 db.init_app(app)
 db.create_all(app=app)
 
-if __name__ == '__main__':
-    sc = SpiderScheduler()
+sc = SpiderScheduler()
 
 
 @app.route('/',methods=['GET','POST'])
@@ -49,8 +48,14 @@ def show():
     scene = request.args.get('scene')
     adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
     type_code = Scenecode.query.filter(Scenecode.scene == scene).one().scenecode
-    while not type_code%10:
-        type_code //= 10
+
+    def remove_zero(input):
+        b = str(input)[::-1]
+        b = str(int(b))
+        output = b[::-1]
+        return output
+
+    type_code = remove_zero(type_code)
 
     conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
     cur = conn.cursor()
@@ -75,10 +80,10 @@ def crawl():
         email = user.email
         city = request.form.get('city') 
         global adcode
-        adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
+        adcode = Adcode.query.filter(Adcode.city == city).first().adcode
         scene = request.form.get('scene')
         global scenecode
-        scenecode = int(Scenecode.query.filter(Scenecode.scene == scene).first().scenecode)
+        scenecode = Scenecode.query.filter(Scenecode.scene == scene).first().scenecode
         adsl_server_url = request.form.get('ADSL_SERVER_URL')
         if not adsl_server_url:
             adsl_server_url='http://223.105.3.170:18888'
@@ -96,22 +101,22 @@ def crawl():
             final_gird = 0
 
 
-        g.mission = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
+        mission = Scrape_Missions(username=username, email=email, city=city, city_adcode=adcode, scene=scene,
                                         type_code=scenecode, adsl_server_url=adsl_server_url,
                                         adsl_auth=adsl_server_auth, keys=key,final_grid=final_gird,
                                         status='not start yet')
 
         # 判断是否有重复的任务
-        g.exist_mission =  Scrape_Missions.query.filter(Scrape_Missions.city_adcode==g.mission.city_adcode,Scrape_Missions.type_code==g.mission.type_code).first()
+        exist_mission = Scrape_Missions.query.filter(Scrape_Missions.city_adcode==mission.city_adcode,Scrape_Missions.type_code==mission.type_code).first()
 
-        if g.exist_mission:
-            return render_template("reconfirm.html",exist_mission=g.exist_mission,mission=g.mission)
+        if exist_mission:
+            return render_template('reconfirm.html',exist_mission=exist_mission,mission=mission)
 
         else:
-            db.session.add(g.mission)
+            db.session.add(mission)
             db.session.commit()
 
-            msg = sc.update(g.mission)
+            msg = sc.update(mission)
 
 
             return render_template("crawl.html", username=username, email=email, city=city, adcode=adcode,
@@ -123,22 +128,27 @@ def crawl():
 def reconfirm():
     if request.method == 'GET':
         # 显示元原任务详情以及当前任务详情
-        return render_template('reconfirm.html',exist_mission=g.exist_mission,mission=g.mission)
+        exist_mission = request.args.get('exist_mission')
+        mission = request.args.get('mission')
+        return render_template('reconfirm.html',exist_mission=exist_mission,mission=mission)
     else:
         conformed = request.form.get('confirm')
         if conformed == 'yes':
             #重新调度 任务
-            db.session.add(g.mission)
-            db.session.commit()
-
-            msg = sc.update(g.mission)
-
-            return render_template("crawl.html", username=g.mission.username, email=g.mission.email,
-                                   city=g.mission.city, adcode=g.mission.adcode,
-                                   scene=g.mission.scene, scenecode=g.mission.scenecode,
-                                   msg=g.mission.msg)
+            return '暂未实现,请联系管理员'
+            # db.session.add(mission)
+            # db.session.commit()
+            #
+            # msg = sc.update(mission)
+            #
+            # return render_template("crawl.html", username=mission.username, email=mission.email,
+            #                        city=mission.city, adcode=mission.adcode,
+            #                        scene=mission.scene, scenecode=mission.scenecode,
+            #                        msg=mission.msg)
         else:
-            return redirect(url_for('show',scene=g.mission.scene,city=g.mission.city))
+            return '暂未实现,请联系管理员'
+
+            # return redirect(url_for('show',scene=mission.scene,city=mission.city))
 
 
 
