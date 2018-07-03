@@ -6,7 +6,7 @@ Created on Wed Jun  6 15:44:20 2018
 """
 import shutil
 from flask import Flask,render_template,request,redirect,url_for,session,send_from_directory,flash,g
-from config import HOST,DB,PASSWD,PORT,USER,ADSL_SERVER_AUTH,ADSL_SERVER_URL,KEYS
+from config import HOST,DB,PASSWD,PORT,USER,ADSL_SERVER_AUTH,ADSL_SERVER_URL,KEYS,TABLE_NAME
 import config
 from database import User,Adcode,Scenecode,Scrape_Missions,db
 from decorators import login_required
@@ -48,16 +48,26 @@ def show():
     city = request.args.get('city')
     scene = request.args.get('scene')
     adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
+    type_code = Scenecode.query.filter(Scenecode.scene == scene).one().scenecode
+    while not type_code%10:
+        type_code //= 10
+
     conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
     cur = conn.cursor()
-    sql="""
-            select * from {} where city_adcode={}
-            """.format('GaodeMapScene_test', adcode)
-    cur.execute(sql)
+    sql_limit="""
+            select * from {} where city_adcode={} and typecode like '{}%'limit 20
+        """.format(TABLE_NAME, adcode,type_code)
+    cur.execute(sql_limit)
     scrape_res = cur.fetchall()
+
     if len(scrape_res) < 10:
         return render_template('show.html', scrape_res=scrape_res, city=city, scene=scene)
     else:
+        sql = """
+               select * from {} where city_adcode={}
+               """.format(TABLE_NAME, adcode)
+        cur.execute(sql)
+        scrape_res = cur.fetchall()
         fields = cur.description
         workbook = xlwt.Workbook()
         sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
@@ -72,12 +82,10 @@ def show():
             for col in range(0, len(fields)):
                 sheet.write(row, col, u'%s' % scrape_res[row - 1][col])
 
-        workbook.save(r'readout.xls')
+        workbook.save(r'./readout.xls')
 
         conn.close()
         return render_template('show.html', scrape_res=scrape_res)
-
-
 
 
 @app.route('/crawl/',methods=['GET', 'POST'])
@@ -119,7 +127,7 @@ def crawl():
                                         status='not start yet')
 
         # 判断是否有重复的任务
-        g.exist_mission =  Scrape_Missions.query.filter_by(city_adcode=g.mission.city_adcode,type_code=g.mission.type_code).all()
+        g.exist_mission =  Scrape_Missions.query.filter(Scrape_Missions.city_adcode==g.mission.city_adcode,Scrape_Missions.type_code==g.mission.type_code).first()
 
         if g.exist_mission:
             return render_template("reconfirm.html",exist_mission=g.exist_mission,mission=g.mission)
@@ -142,7 +150,7 @@ def reconfirm():
         # 显示元原任务详情以及当前任务详情
         return render_template('reconfirm.html',exist_mission=g.exist_mission,mission=g.mission)
     else:
-        conformed = request.form.get('conform')
+        conformed = request.form.get('confirm')
         if conformed == 'yes':
             #重新调度 任务
             db.session.add(g.mission)
@@ -150,26 +158,48 @@ def reconfirm():
 
             msg = sc.update(g.mission)
 
-            return render_template("crawl.html", username=g.mission.username, email=g.mission.email, city=g.mission.city, adcode=g.mission.adcode,
-                                   scene=g.mission.scene, scenecode=scenecode,msg=msg)
+            return render_template("crawl.html", username=g.mission.username, email=g.mission.email,
+                                   city=g.mission.city, adcode=g.mission.adcode,
+                                   scene=g.mission.scene, scenecode=g.mission.scenecode,
+                                   msg=g.mission.msg)
         else:
-            return render_template('show.html',scene=g.mission.scene,city=g.mission.city)
-
-@app.route('/something/')
-@login_required
-def something():
-    global adcode
-    global scenecode
-    log=''
-    with open("C:/Users/X1Carbon/MapCrawler_test/MapCrawler/%s-%s.log"%(adcode,scenecode), 'r',encoding='UTF-8') as f:
-        for i in f:
-            log += i
-        return log
+            return redirect(url_for('show',scene=g.mission.scene,city=g.mission.city))
 
 
 
 @app.route('/download/', methods=['GET'])
-def download_file():
+@login_required
+def download():
+
+    city = request.args.get('city')
+    scene = request.args.get('scene')
+    adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
+    type_code = Scenecode.query.filter(Scenecode.scene == scene).one().scenecode
+    while not type_code%10:
+        type_code //= 10
+    conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
+    cur = conn.cursor()
+    sql="""
+            select * from {} where city_adcode={} and typecode like '{}%'
+            """.format(TABLE_NAME, adcode, type_code)
+    cur.execute(sql)
+    total_res = cur.fetchall()
+    fields = cur.description
+    workbook = xlwt.Workbook()
+    sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
+
+    # 写上字段信息
+    for field in range(0, len(fields)):
+        sheet.write(0, field, fields[field][0])
+
+    # 获取并写入数据段信息
+
+    for row in range(1, len(total_res) + 1):
+        for col in range(0, len(fields)):
+            sheet.write(row, col, u'%s' % total_res[row - 1][col])
+
+    workbook.save(r'./readout.xls')
+    conn.close()
     directory =os.getcwd()
 
     filename="readout.xls"
@@ -212,9 +242,9 @@ def regist():
     # user = User(email=email,username=username,password=password1)
     # db.session.add(user)
     # db.session.commit()
-        return "该平台关闭注册，请通知管理员给你分配密码,3秒后跳回登录界面"
-        time.sleep(3)
-        return redirect(url_for('login'))
+        return "该平台关闭注册，请通知管理员给你分配密码"
+        # time.sleep(3)
+        # return redirect(url_for('login'))
 
 @app.route('/logout/')
 def logout():

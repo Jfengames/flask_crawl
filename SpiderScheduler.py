@@ -117,5 +117,6 @@ if __name__ == '__main__':
     #
     # db.session.add(mission)
     # db.session.commit()
-
+    pool = Pool(processes=MAX_PROCESS)
+    missions_running = 0
     sc.update()
