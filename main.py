@@ -60,32 +60,7 @@ def show():
     cur.execute(sql_limit)
     scrape_res = cur.fetchall()
 
-    if len(scrape_res) < 10:
-        return render_template('show.html', scrape_res=scrape_res, city=city, scene=scene)
-    else:
-        sql = """
-               select * from {} where city_adcode={}
-               """.format(TABLE_NAME, adcode)
-        cur.execute(sql)
-        scrape_res = cur.fetchall()
-        fields = cur.description
-        workbook = xlwt.Workbook()
-        sheet = workbook.add_sheet('table_message', cell_overwrite_ok=True)
-
-        # 写上字段信息
-        for field in range(0, len(fields)):
-            sheet.write(0, field, fields[field][0])
-
-        # 获取并写入数据段信息
-
-        for row in range(1, len(scrape_res) + 1):
-            for col in range(0, len(fields)):
-                sheet.write(row, col, u'%s' % scrape_res[row - 1][col])
-
-        workbook.save(r'./readout.xls')
-
-        conn.close()
-        return render_template('show.html', scrape_res=scrape_res)
+    return render_template('show.html', scrape_res=scrape_res, city=city, scene=scene)
 
 
 @app.route('/crawl/',methods=['GET', 'POST'])
@@ -263,4 +238,4 @@ def my_context_processor():
     return {}
        
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',port=5112)
