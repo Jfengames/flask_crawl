@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css') }}">
     <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
 	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static',filename='js/city.js') }}" ></script>
 {% endblock %}
 
 {% block main %}
@@ -18,51 +19,40 @@
                     <option value="居民区">居民区</option>
                     <option value="医院">医院</option>
                 </select>
-            <label for="citys">选择城市</label>
-                <select class="form-control" id="citys" name="city">
-                    <option value="北京市">北京市</option>
-                    <option value="成都市">成都市</option>
-                    <option value="大连市">大连市</option>
-                    <option value="福州市">福州市</option>
-                    <option value="广州市">广州市</option>
-                    <option value="贵阳市">贵阳市</option>
-                    <option value="哈尔滨市">哈尔滨市</option>
-                    <option value="海口市">海口市</option>
-                    <option value="杭州市">杭州市</option>
-                    <option value="合肥市">合肥市</option>
-                    <option value="呼和浩特市">呼和浩特市</option>
-                    <option value="济南市">济南市</option>
-                    <option value="昆明市">昆明市</option>
-                    <option value="兰州市">兰州市</option>
-                    <option value="南昌市">南昌市</option>
-                    <option value="南京市">南京市</option>
-                    <option value="南宁市">南宁市</option>
-                    <option value="宁波市">宁波市</option>
-                    <option value="青岛市">青岛市</option>
-                    <option value="厦门市">厦门市</option>
-                    <option value="上海市">上海市</option>
-                    <option value="深圳市">深圳市</option>
-                    <option value="沈阳市">沈阳市</option>
-                    <option value="石家庄市">石家庄市</option>
-                    <option value="苏州市">苏州市</option>
-                    <option value="太原市">太原市</option>
-                    <option value="天津市">天津市</option>
-                    <option value="温州市">温州市</option>
-                    <option value="武汉市">武汉市</option>
-                    <option value="西安市">西安市</option>
-                    <option value="西宁市">西宁市</option>
-                    <option value="银川市">银川市</option>
-                    <option value="长春市">长春市</option>
-                    <option value="长沙市">长沙市</option>
-                    <option value="郑州市">郑州市</option>
-                    <option value="重庆市">重庆市</option>
-                    <option value="拉萨市">拉萨市</option>
-                    <option value="乌鲁木齐市">乌鲁木齐市</option>
-                </select>
+            <label for="province">选择省份</label>
+            <select class="form-control" id="province" name="province"></select>
+            <label for="city">选择城市</label>
+            <select class="form-control" id="city" name="city"></select>
         </div>
 
         <input type="submit" class="btn btn-default">
 </form>
+
+<script>
+    (function(){
+        var pHtmlStr = '';
+        for(var name in pc){
+            pHtmlStr = pHtmlStr + '<option>'+name+'</option>';
+        }
+        $("#province").html(pHtmlStr);
+        $("#province").change(function(){
+            var pname = $("#province option:selected").text();
+            var pHtmlStr = '';
+            var cityList = pc[pname];
+            for(var index in cityList){
+                pHtmlStr = pHtmlStr + '<option>'+cityList[index]+'</option>';
+            }
+            $("#city").html(pHtmlStr);
+        });
+        $("#province").change();
+    })();
+
+</script>
+
+
+</form>
+
+
 
 <script>
 $(function() {
