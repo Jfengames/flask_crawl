@@ -18,6 +18,12 @@ import time
 
 from SpiderScheduler import SpiderScheduler
 
+def remove_zero(input):
+    b = str(input)[::-1]
+    b = str(int(b))
+    output = b[::-1]
+    return output
+
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
@@ -48,12 +54,6 @@ def show():
     scene = request.args.get('scene')
     adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
     type_code = Scenecode.query.filter(Scenecode.scene == scene).one().scenecode
-
-    def remove_zero(input):
-        b = str(input)[::-1]
-        b = str(int(b))
-        output = b[::-1]
-        return output
 
     type_code = remove_zero(type_code)
 
@@ -160,8 +160,7 @@ def download():
     scene = request.args.get('scene')
     adcode = int(Adcode.query.filter(Adcode.city == city).first().adcode)
     type_code = Scenecode.query.filter(Scenecode.scene == scene).one().scenecode
-    while not type_code%10:
-        type_code //= 10
+    type_code = remove_zero(type_code)
     conn = pymysql.connect(host=HOST, user=USER, password=PASSWD, db=DB, charset='utf8')
     cur = conn.cursor()
     sql="""
