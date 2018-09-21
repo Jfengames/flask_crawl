@@ -10,5 +10,7 @@ def login_required(func):
         if session.get('user_id'):
             return func(*args,**kwargs)
         else:
-            return redirect(url_for('login'))
+            return redirect(url_for('user.login'))
     return wrapper
+
+
