@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}论坛{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/note.css') }}">
+{% endblock %}
+
+{% block main %}
+    <ul class="note-list-group">
+        {% for card in cards %}
+            <li>
+{#                <div class="avatar-group">#}
+{#                    <img src="{{ url_for('static', filename='images/2.png')}}" class="avatar">#}
+{#                </div>#}
+                <div class="note-group" style="width: 660px;margin-left: 138px;margin-top:50px;">
+                    <p class="note-title" style="font-size: 30px;color: #5688ee;width: 100%;font-weight: 700;">
+                        <a href="{{ url_for('note.detail', note_id=card.id) }}">{{ card.title }}</a>
+                    </p>
+                    <p class="note-content" style="font-size: 15px;line-height: 26px;" >{{ card.content }}</p>
+                    <div class="note-info" style="text-align:right;">
+                        <span class="note-author">作者:{{ card.author.username }}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="note-time">时间:{{ card.create_time }}</span>
+                    </div>
+                </div>
+            </li>
+            <hr>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}详情-{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detail.css')}}">
+{% endblock %}
+
+{% block main %}
+    <h3 class="page-title" style="font-size: 40px">{{ note.title }}</h3>
+    <p class="note-info" style="text-align:center;">
+        <span>作者:{{ note.author.username }}</span>
+        <span class="note-time">&nbsp;&nbsp;&nbsp;&nbsp;时间:{{ note.create_time }}</span>
+    <hr>
+    <p style="margin-left: 88px" class="note-content">{{ note.content }}</p>
+    <hr>
+    <h4 style="margin-left: 78px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;评论:</h4>
+    <form action="{{ url_for('note.add_comment') }}" method="post">
+        <div class="from-group" style="margin-left: 98px">
+            <input name="comment_content" type="text" class="from-control" placeholder="请填写评论" style="width:500px;height:30px;margin-left: 60px">
+{#            {{ form.csrf_token() }}#}
+{#            {{ form.content(class="form-control",placeholder="请填写评论",type="text",style="width:500px;height:30px;margin-left: 60px") }} <br>#}
+            <input type="hidden" name="note_id" value="{{ note.id }}">
+        </div>
+        <div class="from-group" style="text-align: right;">
+            <button class="btn btn-primary" style="margin-right: 108px">发表评论</button>
+        </div>
+    </form>
+    <ul class="comment-list">
+        {% for comment in note.comments %}
+            <li>
+                <div class="user-info" style="margin-left: 88px;font-size: 15px;">
+                    <span class="username">{{ comment.author.username }}</span>
+                    <span class="create-time">&nbsp;&nbsp;&nbsp;&nbsp;{{ comment.create_time }}</span>
+                </div><br>
+                <p style="margin-left: 88px" class="comment-content">{{ comment.content }}</p>
+            </li><hr>
+        {% endfor %}
+    </ul>
+{% endblock %}

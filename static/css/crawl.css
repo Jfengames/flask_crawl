@@ -1,0 +1,21 @@
+.main{
+    width: 730px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 0px;
+}
+.form-container01{
+    height: 300px;
+}
+.form-container02{
+
+    overflow-y:auto;
+    height: 500px;
+    margin: 0 auto;
+}
+.form-control{
+    margin-top: 15px;
+}
+.form-group.form-control{
+    margin-top: 0px;
+}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}场景分析{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet"  href="{{url_for('static',filename='css/analysis.css')}}">
+{% endblock %}
+
+{% block main %}
+
+<div class="main">
+    <div class="content">
+        <div class="new_mission" style="float: left;">
+            <a href="{{ url_for("analysis.new_mission_todos") }}">
+                <img class="pic" src="{{url_for('static',filename='images/new_mission.png')}}">
+            </a>
+        </div>
+        <div class="data_search" style="float: right;">
+            <a href="{{ url_for("analysis.data_search") }}">
+                <img class="pic" src="{{url_for('static',filename='images/data_search.png')}}">
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

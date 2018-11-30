@@ -1,0 +1,28 @@
+.main{
+    width: 730px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 0px;
+}
+.table-responsive{
+    width: 730px;
+    height: 500px;
+    margin: 0 auto;
+}
+table{
+    text-align:left;
+
+
+
+    vertical-align:bottom;
+    padding:15px;
+    overflow: auto;
+}
+.form-group{
+    margin-top: 150px;
+}
+table caption{
+    text-align: center;
+font-weight: bold}
+table td{word-break: keep-all;white-space:nowrap;}
+table thead{word-break: keep-all;white-space:nowrap;}

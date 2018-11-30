@@ -1,0 +1,52 @@
+.note-info{
+    text-align: center;
+    margin-top: 30px;
+}
+
+.note-info .note-time{
+    margin-left: 20px;
+}
+
+.page-title{
+    width: 100%;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 30px;
+}
+
+.note-content{
+    font-size: 16px;
+    line-height: 26px;
+    width: 660px;
+    margin-left: 30px;
+
+}
+
+.comment-list li{
+    list-style: none;
+    border-bottom: 1px solid #eee;
+    padding-top:10px;
+}
+
+.comment-list{
+    padding-left: 30px;
+}
+
+.user-info{
+    font-size: 15px;
+    color: #9b9b9b;
+    line-height: 30px;
+}
+
+.user-info .username{
+    margin-left: 25px;
+}
+
+.user-info .create-time{
+    margin-left: 450px;
+}
+
+.comment-content{
+    margin-left: 50px;
+}
+

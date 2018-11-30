@@ -1,0 +1,711 @@
+{% extends 'base.html' %}
+
+{% block title %}场景分析{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet"  href="{{url_for('static',filename='css/analysis_data_search.css')}}">
+    <script src="{{ url_for('static',filename='js/city.js') }}" ></script>
+{% endblock %}
+
+{% block main %}
+<div class="data_search">
+    <form action="/analysis/data_search" method="POST" style=" border-style: dashed; border-color: #2e6da4; border-width:thin;height: 120px">
+            <div class="form-group">
+                <label for="city">{{ city }}</label>
+            </div>
+
+        <div class="form-group col-lg-6" style="float: left; width: 30%; margin-top:-30px">
+                <label for="scenes" style="float: left;">选择场景</label>
+                    <select class="form-control col-lg-4" id="scenes" name="scene" >
+                        <option value="居民区">居民区</option>
+                        <option value="医院">医院</option>
+                        <option value="美食">美食</option>
+                        <option value="美景">美景</option>
+                    </select>
+        </div>
+            <div class="form-group col-lg-6" style="float: left; width: 30%; margin-top:-30px">
+                <label for="province" style="float: left;">选择省份</label>
+                <select class="form-control col-lg-4" id="province" name="province" ></select>
+            </div>
+              <div class="form-group col-lg-6" style="float: left; width: 30%;margin-top:-30px">
+                    <label for="city">选择城市</label>
+                    <select class="form-control col-lg-4" id="city" name="city"></select>
+              </div>
+      <button type="submit" class="btn btn-default" style="float: left; width: 10%;margin-left:15px">提交</button>
+    </form>
+</div>
+<div class="data_search_commonparameters_tagged">
+    <form action="/analysis/data_search" method="POST" style="margin-top: 10px; border-style: dashed; border-color: #2e6da4; border-width: thin">
+                <div class="table-responsive" style="overflow: scroll; height: 400px">
+                    <table class="table table-striped table-sm">
+                     <caption>小区与场景关联数据</caption>
+                    <thead>
+                        <tr>
+                            <td>dt </td>
+                            <td>province </td>
+                            <td>city </td>
+                            <td>region </td>
+                            <td>cgi </td>
+                            <td>tac </td>
+                            <td>chinesename </td>
+                            <td>covertype </td>
+                            <td>scenario </td>
+                            <td>vendor </td>
+                            <td>earfcn </td>
+                            <td>nettype </td>
+                            <td>pci </td>
+                            <td>iscore </td>
+                            <td>gpslat </td>
+                            <td>gpslng </td>
+                            <td>bdlat </td>
+                            <td>bdlng </td>
+                            <td>angle </td>
+                            <td>height </td>
+                            <td>totaltilt </td>
+                            <td>iscounty  </td>
+                            <td>isauto </td>
+                            <td>flag </td>
+                            <td>residential_flag </td>
+                            <td>hospital_flag </td>
+                            <td>beauty_spot_flag </td>
+                            <td>college_flag </td>
+                            <td>food_centre_flag </td>
+                            <td>subway_flag </td>
+                            <td>high_speed_flag </td>
+                            <td>high_speed_rail_flag </td>
+                            <td>viaduct_flag </td>
+                            <td>high_rise_flag </td>
+                        </tr>
+                    </thead>
+                        {% for i in commonparameters_tagged %}
+                            <tr>
+                                <td>{{ i.dt }}</td>
+                                <td>{{ i.province }}</td>
+                                <td>{{ i.city }}</td>
+                                <td>{{ i.region }}</td>
+                                <td>{{ i.cgi }}</td>
+                                <td>{{ i.tac}}</td>
+                                <td>{{ i.chinesename }}</td>
+                                <td>{{ i.covertype }}</td>
+                                <td>{{ i.scenario }}</td>
+                                <td>{{ i.vendor }}</td>
+                                <td>{{ i.earfcn }}</td>
+                                <td>{{ i.nettype }}</td>
+                                <td>{{ i.pci }}</td>
+                                <td>{{ i.iscore }}</td>
+                                <td>{{ i.gpslat }}</td>
+                                <td>{{ i.gpslng }}</td>
+                                <td>{{ i.bdlat }}</td>
+                                <td>{{ i.bdlng }}</td>
+                                <td>{{ i.angle }}</td>
+                                <td>{{ i.height }}</td>
+                                <td>{{ i.totaltilt }}</td>
+                                <td>{{ i.iscounty }}</td>
+                                <td>{{ i.isauto }}</td>
+                                <td>{{ i.flag }}</td>
+                                <td>{{ i.residential_flag }}</td>
+                                <td>{{ i.hospital_flag }}</td>
+                                <td>{{ i.beauty_spot_flag }}</td>
+                                <td>{{ i.college_flag }}</td>
+                                <td>{{ i.food_centre_flag }}</td>
+                                <td>{{ i.subway_flag }}</td>
+                                <td>{{ i.high_speed_flag }}</td>
+                                <td>{{ i.high_speed_rail_flag }}</td>
+                                <td>{{ i.viaduct_flag }}</td>
+                                <td>{{ i.high_rise_flag }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+    </form>
+    <form action="/analysis/data_search/download/",method="GET">
+        <input type="button" class="btn btn-primary"
+        data-toggle="button" name="download" value="下载" onclick="location.href='{{ url_for('analysis.download2')}}'">
+    </form>
+</div>
+<div class="data_search_gaodemapscene_tagged">
+<form action="/analysis/data_search" method="POST" style="margin-top: 10px; border-style: dashed; border-color: #2e6da4; border-width: thin">
+            <div class="table-responsive" style="overflow: scroll; height: 400px">
+                <table class="table table-striped table-sm">
+                 <caption>场景与小区关联数据</caption>
+                <thead>
+                    <tr>
+                        <td>id</td>
+                        <td>province</td>
+                        <td>city&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>city_adcode</td>
+                        <td>district</td>
+                        <td>address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>longtitude</td>
+                        <td>lat</td>
+                        <td>type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>typecode</td>
+                        <td>classify</td>
+                        <td>area</td>
+                        <td>shape</td>
+                        <td>wgs_long</td>
+                        <td>wgs_lat</td>
+                        <td>wgs_shape</td>
+                        <td>cgi_1</td>
+                        <td>chinesename_1</td>
+                        <td>pci_1</td>
+                        <td>cgi_2</td>
+                        <td>chinesename_2</td>
+                        <td>pci_2</td>
+                        <td>cgi_3</td>
+                        <td>chinesename_3</td>
+                        <td>pci_3</td>
+                        <td>cgi_4</td>
+                        <td>chinesename_4</td>
+                        <td>pci_4</td>
+                        <td>cgi_5</td>
+                        <td>chinesename_5</td>
+                        <td>pci_5</td>
+                        <td>cgi_6</td>
+                        <td>chinesename_6</td>
+                        <td>pci_6</td>
+                        <td>cgi_7</td>
+                        <td>chinesename_7</td>
+                        <td>pci_7</td>
+                        <td>cgi_8</td>
+                        <td>chinesename_8</td>
+                        <td>pci_8</td>
+                        <td>cgi_9</td>
+                        <td>chinesename_9</td>
+                        <td>pci_9</td>
+                        <td>cgi_10</td>
+                        <td>chinesename_10</td>
+                        <td>pci_10</td>
+                        <td>cgi_11</td>
+                        <td>chinesename_11</td>
+                        <td>pci_11</td>
+                        <td>cgi_12</td>
+                        <td>chinesename_12</td>
+                        <td>pci_12</td>
+                        <td>cgi_13</td>
+                        <td>chinesename_13</td>
+                        <td>pci_13</td>
+                        <td>cgi_14</td>
+                        <td>chinesename_14</td>
+                        <td>pci_14</td>
+                        <td>cgi_15</td>
+                        <td>chinesename_15</td>
+                        <td>pci_15</td>
+                        <td>cgi_16</td>
+                        <td>chinesename_16</td>
+                        <td>pci_16</td>
+                        <td>cgi_17</td>
+                        <td>chinesename_17</td>
+                        <td>pci_17</td>
+                        <td>cgi_18</td>
+                        <td>chinesename_18</td>
+                        <td>pci_18</td>
+                        <td>cgi_19</td>
+                        <td>chinesename_19</td>
+                        <td>pci_19</td>
+                        <td>cgi_20</td>
+                        <td>chinesename_20</td>
+                        <td>pci_20</td>
+                        <td>cgi_21</td>
+                        <td>chinesename_21</td>
+                        <td>pci_21</td>
+                        <td>cgi_22</td>
+                        <td>chinesename_22</td>
+                        <td>pci_22</td>
+                        <td>cgi_23</td>
+                        <td>chinesename_23</td>
+                        <td>pci_23</td>
+                        <td>cgi_24</td>
+                        <td>chinesename_24</td>
+                        <td>pci_24</td>
+                        <td>cgi_25</td>
+                        <td>chinesename_25</td>
+                        <td>pci_25</td>
+                        <td>cgi_26</td>
+                        <td>chinesename_26</td>
+                        <td>pci_26</td>
+                        <td>cgi_27</td>
+                        <td>chinesename_27</td>
+                        <td>pci_27</td>
+                        <td>cgi_28</td>
+                        <td>chinesename_28</td>
+                        <td>pci_28</td>
+                        <td>cgi_29</td>
+                        <td>chinesename_29</td>
+                        <td>pci_29</td>
+                        <td>cgi_30</td>
+                        <td>chinesename_30</td>
+                        <td>pci_30</td>
+                        <td>cgi_31</td>
+                        <td>chinesename_31</td>
+                        <td>pci_31</td>
+                        <td>cgi_32</td>
+                        <td>chinesename_32</td>
+                        <td>pci_32</td>
+                        <td>cgi_33</td>
+                        <td>chinesename_33</td>
+                        <td>pci_33</td>
+                        <td>cgi_34</td>
+                        <td>chinesename_34</td>
+                        <td>pci_34</td>
+                        <td>cgi_35</td>
+                        <td>chinesename_35</td>
+                        <td>pci_35</td>
+                        <td>cgi_36</td>
+                        <td>chinesename_36</td>
+                        <td>pci_36</td>
+                        <td>cgi_37</td>
+                        <td>chinesename_7</td>
+                        <td>pci_37</td>
+                        <td>cgi_38</td>
+                        <td>chinesename_38</td>
+                        <td>pci_38</td>
+                        <td>cgi_39</td>
+                        <td>chinesename_39</td>
+                        <td>pci_39</td>
+                        <td>cgi_40</td>
+                        <td>chinesename_40</td>
+                        <td>pci_40</td>
+                        <td>cgi_41</td>
+                        <td>chinesename_41</td>
+                        <td>pci_41</td>
+                        <td>cgi_42</td>
+                        <td>chinesename_42</td>
+                        <td>pci_42</td>
+                        <td>cgi_43</td>
+                        <td>chinesename_43</td>
+                        <td>pci_43</td>
+                        <td>cgi_44</td>
+                        <td>chinesename_44</td>
+                        <td>pci_44</td>
+                        <td>cgi_45</td>
+                        <td>chinesename_45</td>
+                        <td>pci_45</td>
+                        <td>cgi_46</td>
+                        <td>chinesename_46</td>
+                        <td>pci_46</td>
+                        <td>cgi_47</td>
+                        <td>chinesename_47</td>
+                        <td>pci_47</td>
+                        <td>cgi_48</td>
+                        <td>chinesename_48</td>
+                        <td>pci_48</td>
+                        <td>cgi_49</td>
+                        <td>chinesename_49</td>
+                        <td>pci_49</td>
+                        <td>cgi_50</td>
+                        <td>chinesename_50</td>
+                        <td>pci_50</td>
+                        <td>cgi_51</td>
+                        <td>chinesename_51</td>
+                        <td>pci_51</td>
+                        <td>cgi_52</td>
+                        <td>chinesename_52</td>
+                        <td>pci_52</td>
+                        <td>cgi_53</td>
+                        <td>chinesename_53</td>
+                        <td>pci_53</td>
+                        <td>cgi_54</td>
+                        <td>chinesename_54</td>
+                        <td>pci_54</td>
+                        <td>cgi_55</td>
+                        <td>chinesename_55</td>
+                        <td>pci_55</td>
+                        <td>cgi_56</td>
+                        <td>chinesename_56</td>
+                        <td>pci_56</td>
+                        <td>cgi_57</td>
+                        <td>chinesename_57</td>
+                        <td>pci_57</td>
+                        <td>cgi_58</td>
+                        <td>chinesename_58</td>
+                        <td>pci_58</td>
+                        <td>cgi_59</td>
+                        <td>chinesename_59</td>
+                        <td>pci_59</td>
+                        <td>cgi_60</td>
+                        <td>chinesename_60</td>
+                        <td>pci_60</td>
+                        <td>cgi_61</td>
+                        <td>chinesename_1</td>
+                        <td>pci_61</td>
+                        <td>cgi_62</td>
+                        <td>chinesename_62</td>
+                        <td>pci_62</td>
+                        <td>cgi_63</td>
+                        <td>chinesename_63</td>
+                        <td>pci_63</td>
+                        <td>cgi_64</td>
+                        <td>chinesename_64</td>
+                        <td>pci_64</td>
+                        <td>cgi_65</td>
+                        <td>chinesename_65</td>
+                        <td>pci_65</td>
+                        <td>cgi_66</td>
+                        <td>chinesename_66</td>
+                        <td>pci_66</td>
+                        <td>cgi_67</td>
+                        <td>chinesename_67</td>
+                        <td>pci_67</td>
+                        <td>cgi_68</td>
+                        <td>chinesename_68</td>
+                        <td>pci_68</td>
+                        <td>cgi_69</td>
+                        <td>chinesename_69</td>
+                        <td>pci_69</td>
+                        <td>cgi_70</td>
+                        <td>chinesename_70</td>
+                        <td>pci_70</td>
+                        <td>cgi_71</td>
+                        <td>chinesename_71</td>
+                        <td>pci_71</td>
+                        <td>cgi_72</td>
+                        <td>chinesename_72</td>
+                        <td>pci_72</td>
+                        <td>cgi_73</td>
+                        <td>chinesename_73</td>
+                        <td>pci_73</td>
+                        <td>cgi_74</td>
+                        <td>chinesename_74</td>
+                        <td>pci_74</td>
+                        <td>cgi_75</td>
+                        <td>chinesename_75</td>
+                        <td>pci_75</td>
+                        <td>cgi_76</td>
+                        <td>chinesename_76</td>
+                        <td>pci_76</td>
+                        <td>cgi_77</td>
+                        <td>chinesename_77</td>
+                        <td>pci_77</td>
+                        <td>cgi_78</td>
+                        <td>chinesename_78</td>
+                        <td>pci_78</td>
+                        <td>cgi_79</td>
+                        <td>chinesename_79</td>
+                        <td>pci_79</td>
+                        <td>cgi_80</td>
+                        <td>chinesename_80</td>
+                        <td>pci_80</td>
+                        <td>cgi_81</td>
+                        <td>chinesename_81</td>
+                        <td>pci_81</td>
+                        <td>cgi_82</td>
+                        <td>chinesename_82</td>
+                        <td>pci_82</td>
+                        <td>cgi_83</td>
+                        <td>chinesename_83</td>
+                        <td>pci_83</td>
+                        <td>cgi_84</td>
+                        <td>chinesename_84</td>
+                        <td>pci_84</td>
+                    </tr>
+                </thead>
+                    {% for j in gaodemapscene_tagged %}
+                        <tr>
+                            <td>{{ j.id }}</td>
+                            <td>{{ j.province }}</td>
+                            <td>{{ j.city }}</td>
+                            <td>{{ j.name }}</td>
+                            <td>{{ j.city_adcode }}</td>
+                            <td>{{ j.district }}</td>
+                            <td>{{ j.address }}</td>
+                            <td>{{ j.longtitude }}</td>
+                            <td>{{ j.lat }}</td>
+                            <td>{{ j.type }}</td>
+                            <td>{{ j.typecode }}</td>
+                            <td>{{ j.classify }}</td>
+                            <td>{{ j.area }}</td>
+                            <td>{{ j.shape }}</td>
+                            <td>{{ j.wgs_long }}</td>
+                            <td>{{ j.wgs_lat }}</td>
+                            <td>{{ j.wgs_shape }}</td>
+                            <td>{{ j.cgi_1 }}</td>
+                            <td>{{ j.chinesename_1 }}</td>
+                            <td>{{ j.pci_1 }}</td>
+                            <td>{{ j.cgi_2 }}</td>
+                            <td>{{ j.chinesename_2 }}</td>
+                            <td>{{ j.pci_2 }}</td>
+                            <td>{{ j.cgi_3 }}</td>
+                            <td>{{ j.chinesename_3 }}</td>
+                            <td>{{ j.pci_3 }}</td>
+                            <td>{{ j.cgi_4 }}</td>
+                            <td>{{ j.chinesename_4 }}</td>
+                            <td>{{ j.pci_4 }}</td>
+                            <td>{{ j.cgi_5 }}</td>
+                            <td>{{ j.chinesename_5 }}</td>
+                            <td>{{ j.pci_5 }}</td>
+                            <td>{{ j.cgi_6 }}</td>
+                            <td>{{ j.chinesename_6 }}</td>
+                            <td>{{ j.pci_6 }}</td>
+                            <td>{{ j.cgi_7 }}</td>
+                            <td>{{ j.chinesename_7 }}</td>
+                            <td>{{ j.pci_7 }}</td>
+                            <td>{{ j.cgi_8 }}</td>
+                            <td>{{ j.chinesename_8 }}</td>
+                            <td>{{ j.pci_8 }}</td>
+                            <td>{{ j.cgi_9 }}</td>
+                            <td>{{ j.chinesename_9 }}</td>
+                            <td>{{ j.pci_9 }}</td>
+                            <td>{{ j.cgi_10 }}</td>
+                            <td>{{ j.chinesename_10 }}</td>
+                            <td>{{ j.pci_10 }}</td>
+                            <td>{{ j.cgi_11 }}</td>
+                            <td>{{ j.chinesename_11 }}</td>
+                            <td>{{ j.pci_11 }}</td>
+                            <td>{{ j.cgi_12 }}</td>
+                            <td>{{ j.chinesename_12 }}</td>
+                            <td>{{ j.pci_12 }}</td>
+                            <td>{{ j.cgi_13 }}</td>
+                            <td>{{ j.chinesename_13 }}</td>
+                            <td>{{ j.pci_13 }}</td>
+                            <td>{{ j.cgi_14 }}</td>
+                            <td>{{ j.chinesename_14 }}</td>
+                            <td>{{ j.pci_14 }}</td>
+                            <td>{{ j.cgi_15 }}</td>
+                            <td>{{ j.chinesename_15 }}</td>
+                            <td>{{ j.pci_15 }}</td>
+                            <td>{{ j.cgi_16 }}</td>
+                            <td>{{ j.chinesename_16 }}</td>
+                            <td>{{ j.pci_16 }}</td>
+                            <td>{{ j.cgi_17 }}</td>
+                            <td>{{ j.chinesename_17 }}</td>
+                            <td>{{ j.pci_17 }}</td>
+                            <td>{{ j.cgi_18 }}</td>
+                            <td>{{ j.chinesename_18 }}</td>
+                            <td>{{ j.pci_18 }}</td>
+                            <td>{{ j.cgi_19 }}</td>
+                            <td>{{ j.chinesename_19 }}</td>
+                            <td>{{ j.pci_19 }}</td>
+                            <td>{{ j.cgi_20 }}</td>
+                            <td>{{ j.chinesename_20 }}</td>
+                            <td>{{ j.pci_20 }}</td>
+                            <td>{{ j.cgi_21 }}</td>
+                            <td>{{ j.chinesename_21 }}</td>
+                            <td>{{ j.pci_21 }}</td>
+                            <td>{{ j.cgi_22 }}</td>
+                            <td>{{ j.chinesename_22 }}</td>
+                            <td>{{ j.pci_22 }}</td>
+                            <td>{{ j.cgi_23 }}</td>
+                            <td>{{ j.chinesename_23 }}</td>
+                            <td>{{ j.pci_23 }}</td>
+                            <td>{{ j.cgi_24 }}</td>
+                            <td>{{ j.chinesename_24 }}</td>
+                            <td>{{ j.pci_24 }}</td>
+                            <td>{{ j.cgi_25 }}</td>
+                            <td>{{ j.chinesename_25 }}</td>
+                            <td>{{ j.pci_25 }}</td>
+                            <td>{{ j.cgi_26 }}</td>
+                            <td>{{ j.chinesename_26 }}</td>
+                            <td>{{ j.pci_26 }}</td>
+                            <td>{{ j.cgi_27 }}</td>
+                            <td>{{ j.chinesename_27 }}</td>
+                            <td>{{ j.pci_27 }}</td>
+                            <td>{{ j.cgi_28 }}</td>
+                            <td>{{ j.chinesename_28 }}</td>
+                            <td>{{ j.pci_28 }}</td>
+                            <td>{{ j.cgi_29 }}</td>
+                            <td>{{ j.chinesename_29 }}</td>
+                            <td>{{ j.pci_29 }}</td>
+                            <td>{{ j.cgi_30 }}</td>
+                            <td>{{ j.chinesename_30 }}</td>
+                            <td>{{ j.pci_30 }}</td>
+                            <td>{{ j.cgi_31 }}</td>
+                            <td>{{ j.chinesename_31 }}</td>
+                            <td>{{ j.pci_31 }}</td>
+                            <td>{{ j.cgi_32 }}</td>
+                            <td>{{ j.chinesename_32 }}</td>
+                            <td>{{ j.pci_32 }}</td>
+                            <td>{{ j.cgi_33 }}</td>
+                            <td>{{ j.chinesename_33 }}</td>
+                            <td>{{ j.pci_33 }}</td>
+                            <td>{{ j.cgi_34 }}</td>
+                            <td>{{ j.chinesename_34 }}</td>
+                            <td>{{ j.pci_34 }}</td>
+                            <td>{{ j.cgi_35 }}</td>
+                            <td>{{ j.chinesename_35 }}</td>
+                            <td>{{ j.pci_35 }}</td>
+                            <td>{{ j.cgi_36 }}</td>
+                            <td>{{ j.chinesename_36 }}</td>
+                            <td>{{ j.pci_36 }}</td>
+                            <td>{{ j.cgi_37 }}</td>
+                            <td>{{ j.chinesename_37 }}</td>
+                            <td>{{ j.pci_37 }}</td>
+                            <td>{{ j.cgi_38 }}</td>
+                            <td>{{ j.chinesename_38 }}</td>
+                            <td>{{ j.pci_38 }}</td>
+                            <td>{{ j.cgi_39 }}</td>
+                            <td>{{ j.chinesename_39 }}</td>
+                            <td>{{ j.pci_39 }}</td>
+                            <td>{{ j.cgi_40 }}</td>
+                            <td>{{ j.chinesename_40 }}</td>
+                            <td>{{ j.pci_40 }}</td>
+                            <td>{{ j.cgi_41 }}</td>
+                            <td>{{ j.chinesename_41 }}</td>
+                            <td>{{ j.pci_41 }}</td>
+                            <td>{{ j.cgi_42 }}</td>
+                            <td>{{ j.chinesename_42 }}</td>
+                            <td>{{ j.pci_42 }}</td>
+                            <td>{{ j.cgi_43 }}</td>
+                            <td>{{ j.chinesename_43 }}</td>
+                            <td>{{ j.pci_43 }}</td>
+                            <td>{{ j.cgi_44 }}</td>
+                            <td>{{ j.chinesename_44 }}</td>
+                            <td>{{ j.pci_44 }}</td>
+                            <td>{{ j.cgi_45 }}</td>
+                            <td>{{ j.chinesename_45 }}</td>
+                            <td>{{ j.pci_45 }}</td>
+                            <td>{{ j.cgi_46 }}</td>
+                            <td>{{ j.chinesename_46 }}</td>
+                            <td>{{ j.pci_46 }}</td>
+                            <td>{{ j.cgi_47 }}</td>
+                            <td>{{ j.chinesename_47 }}</td>
+                            <td>{{ j.pci_47 }}</td>
+                            <td>{{ j.cgi_48 }}</td>
+                            <td>{{ j.chinesename_48 }}</td>
+                            <td>{{ j.pci_48 }}</td>
+                            <td>{{ j.cgi_49 }}</td>
+                            <td>{{ j.chinesename_49 }}</td>
+                            <td>{{ j.pci_49 }}</td>
+                            <td>{{ j.cgi_50 }}</td>
+                            <td>{{ j.chinesename_50 }}</td>
+                            <td>{{ j.pci_50 }}</td>
+                            <td>{{ j.cgi_51 }}</td>
+                            <td>{{ j.chinesename_51 }}</td>
+                            <td>{{ j.pci_51 }}</td>
+                            <td>{{ j.cgi_52 }}</td>
+                            <td>{{ j.chinesename_52 }}</td>
+                            <td>{{ j.pci_52 }}</td>
+                            <td>{{ j.cgi_53 }}</td>
+                            <td>{{ j.chinesename_53 }}</td>
+                            <td>{{ j.pci_53 }}</td>
+                            <td>{{ j.cgi_54 }}</td>
+                            <td>{{ j.chinesename_54 }}</td>
+                            <td>{{ j.pci_54 }}</td>
+                            <td>{{ j.cgi_55 }}</td>
+                            <td>{{ j.chinesename_55 }}</td>
+                            <td>{{ j.pci_55 }}</td>
+                            <td>{{ j.cgi_56 }}</td>
+                            <td>{{ j.chinesename_56 }}</td>
+                            <td>{{ j.pci_56 }}</td>
+                            <td>{{ j.cgi_57 }}</td>
+                            <td>{{ j.chinesename_57 }}</td>
+                            <td>{{ j.pci_57 }}</td>
+                            <td>{{ j.cgi_58 }}</td>
+                            <td>{{ j.chinesename_58 }}</td>
+                            <td>{{ j.pci_58 }}</td>
+                            <td>{{ j.cgi_59 }}</td>
+                            <td>{{ j.chinesename_59 }}</td>
+                            <td>{{ j.pci_59 }}</td>
+                            <td>{{ j.cgi_60 }}</td>
+                            <td>{{ j.chinesename_60 }}</td>
+                            <td>{{ j.pci_60 }}</td>
+                            <td>{{ j.cgi_61 }}</td>
+                            <td>{{ j.chinesename_1 }}</td>
+                            <td>{{ j.pci_61 }}</td>
+                            <td>{{ j.cgi_62 }}</td>
+                            <td>{{ j.chinesename_62 }}</td>
+                            <td>{{ j.pci_62 }}</td>
+                            <td>{{ j.cgi_63 }}</td>
+                            <td>{{ j.chinesename_63 }}</td>
+                            <td>{{ j.pci_63 }}</td>
+                            <td>{{ j.cgi_64 }}</td>
+                            <td>{{ j.chinesename_64 }}</td>
+                            <td>{{ j.pci_64 }}</td>
+                            <td>{{ j.cgi_65 }}</td>
+                            <td>{{ j.chinesename_65 }}</td>
+                            <td>{{ j.pci_65 }}</td>
+                            <td>{{ j.cgi_66 }}</td>
+                            <td>{{ j.chinesename_66 }}</td>
+                            <td>{{ j.pci_66 }}</td>
+                            <td>{{ j.cgi_67 }}</td>
+                            <td>{{ j.chinesename_67 }}</td>
+                            <td>{{ j.pci_67 }}</td>
+                            <td>{{ j.cgi_68 }}</td>
+                            <td>{{ j.chinesename_68 }}</td>
+                            <td>{{ j.pci_68 }}</td>
+                            <td>{{ j.cgi_69 }}</td>
+                            <td>{{ j.chinesename_69 }}</td>
+                            <td>{{ j.pci_69 }}</td>
+                            <td>{{ j.cgi_70 }}</td>
+                            <td>{{ j.chinesename_70 }}</td>
+                            <td>{{ j.pci_70 }}</td>
+                            <td>{{ j.cgi_71 }}</td>
+                            <td>{{ j.chinesename_71 }}</td>
+                            <td>{{ j.pci_71 }}</td>
+                            <td>{{ j.cgi_72 }}</td>
+                            <td>{{ j.chinesename_72 }}</td>
+                            <td>{{ j.pci_72 }}</td>
+                            <td>{{ j.cgi_73 }}</td>
+                            <td>{{ j.chinesename_73 }}</td>
+                            <td>{{ j.pci_73 }}</td>
+                            <td>{{ j.cgi_74 }}</td>
+                            <td>{{ j.chinesename_74 }}</td>
+                            <td>{{ j.pci_74 }}</td>
+                            <td>{{ j.cgi_75 }}</td>
+                            <td>{{ j.chinesename_75 }}</td>
+                            <td>{{ j.pci_75 }}</td>
+                            <td>{{ j.cgi_76 }}</td>
+                            <td>{{ j.chinesename_76 }}</td>
+                            <td>{{ j.pci_76 }}</td>
+                            <td>{{ j.cgi_77 }}</td>
+                            <td>{{ j.chinesename_77 }}</td>
+                            <td>{{ j.pci_77 }}</td>
+                            <td>{{ j.cgi_78 }}</td>
+                            <td>{{ j.chinesename_78 }}</td>
+                            <td>{{ j.pci_78 }}</td>
+                            <td>{{ j.cgi_79 }}</td>
+                            <td>{{ j.chinesename_79 }}</td>
+                            <td>{{ j.pci_79 }}</td>
+                            <td>{{ j.cgi_80 }}</td>
+                            <td>{{ j.chinesename_80 }}</td>
+                            <td>{{ j.pci_80 }}</td>
+                            <td>{{ j.cgi_81 }}</td>
+                            <td>{{ j.chinesename_81 }}</td>
+                            <td>{{ j.pci_81 }}</td>
+                            <td>{{ j.cgi_82 }}</td>
+                            <td>{{ j.chinesename_82 }}</td>
+                            <td>{{ j.pci_82 }}</td>
+                            <td>{{ j.cgi_83 }}</td>
+                            <td>{{ j.chinesename_83 }}</td>
+                            <td>{{ j.pci_83 }}</td>
+                            <td>{{ j.cgi_84 }}</td>
+                            <td>{{ j.chinesename_84 }}</td>
+                            <td>{{ j.pci_84 }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+</form>
+<form action="/analysis/data_search/download_gaode/",method="GET">
+    <input type="button" class="btn btn-primary"
+   	data-toggle="button" name="download" value="下载" onclick="location.href='{{ url_for('analysis.download2_gaode')}}'">
+</form>
+</div>
+<script>
+    (function(){
+        var pHtmlStr = '';
+        for(var name in pc){
+            pHtmlStr = pHtmlStr + '<option>'+name+'</option>';
+        }
+        $("#province").html(pHtmlStr);
+        $("#province").change(function(){
+            var pname = $("#province option:selected").text();
+            var pHtmlStr = '';
+            var cityList = pc[pname];
+            for(var index in cityList){
+                pHtmlStr = pHtmlStr + '<option>'+cityList[index]+'</option>';
+            }
+            $("#city").html(pHtmlStr);
+        });
+        $("#province").change();
+    })();
+
+</script>
+<script>
+$(function() {
+    $(".dropdown-toggle").dropdown('toggle');
+});
+</script>
+
+{% endblock %}

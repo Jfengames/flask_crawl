@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}发布帖子{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+{% endblock %}
+
+{% block main %}
+    <h3 class="page-title">发布帖子</h3>
+    <form action="" method="post">
+        <div class="form-container">
+            {{ form.csrf_token() }}
+            {{ form.title(class="form-control", placeholder="请输入标题",type="text",style="width: 600px;margin-left: 238px;") }} <br>
+            <div class="form-group">
+                <textarea name="content" rows="10" placeholder="请输入内容" class="form-control" style="width: 600px;margin-left:238px;"></textarea>
+            </div>
+            {{ form.submit(class="btn btn-primary btn-block", style="width: 150px;margin-left:688px;") }} <br>
+        </div>
+    </form>
+{% endblock %}

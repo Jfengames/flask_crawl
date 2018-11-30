@@ -1,0 +1,188 @@
+{% extends 'base.html'%}
+
+{% block title %}首页{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css') }}">
+    <link rel="stylesheet" href="http://10.254.201.247/arcgis_js_api/library/3.15/3.15compact/dijit/themes/tundra/tundra.css">
+    <link rel="stylesheet" href="http://10.254.201.247/arcgis_js_api/library/3.15/3.15compact/esri/css/esri.css">
+    <script src="http://10.254.201.247/arcgis_js_api/library/3.15/3.15compact/init.js"  djConfig="parseOnLoad: true"></script>
+{% endblock %}
+
+{% block main %}
+
+
+<form action="/" method="POST">
+        <div class="form-group">
+            <label for="scenes">{{ scene }}</label>
+            <label for="citys">{{ city }}</label>
+        </div>
+
+            <div class="table-responsive" >
+                <table class="table table-striped table-sm">
+                 <caption>数据库数据</caption>
+                <thead>
+                    <tr>
+                    <th>id</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>名称</th>
+                    <th>城市代码</th>
+                    <th>区县</th>
+                    <th>地址</th>
+                    <th>经度</th>
+                    <th>纬度</th>
+                    <th>大类</th>
+                    <th>小类代码</th>
+                    <th>小类</th>
+                    <th>面积</th>
+                    <th>形状</th>
+                    <th>格式化经度</th>
+                    <th>格式化纬度</th>
+                    <th>格式化形状</th>
+                    </tr>
+                </thead>
+                {% if not scrape_res %}
+                    <script type="text/javascript">
+                          var r=confirm("还未爬取"+"{{ city }}"+"{{ scene }}"+"场景，是否跳转到爬虫界面");
+                          if (r==true)
+                            {
+                            window.location.href='{{ url_for('crawl')}}';
+                            }
+                          else
+                            {
+                            }
+                    </script>
+                {% else %}
+                    {% for i in scrape_res %}
+                        <tr>
+                            <td>{{ i[0] }}</td>
+                            <td>{{ i[1] }}</td>
+                            <td>{{ i[2] }}</td>
+                            <td>{{ i[3] }}</td>
+                            <td>{{ i[4] }}</td>
+                            <td>{{ i[5] }}</td>
+                            <td>{{ i[6] }}</td>
+                            <td>{{ i[7] }}</td>
+                            <td>{{ i[8] }}</td>
+                            <td>{{ i[9] }}</td>
+                            <td>{{ i[10] }}</td>
+                            <td>{{ i[11] }}</td>
+                            <td>{{ i[12] }}</td>
+                            <td>{{ i[13] }}</td>
+                            <td>{{ i[14] }}</td>
+                            <td>{{ i[15] }}</td>
+                            <td>{{ i[16] }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                </table>
+            </div>
+</form>
+<form action="/download/",method="GET">
+    <input type="button" class="btn btn-primary"
+   	data-toggle="button" name="download" value="Download" onclick="location.href='{{ url_for('index.download',scene=scene,city=city)}}'">
+</form>
+
+    <div id="mapDiv" style="height: 200px;width: 100%"> </div>
+
+
+<script>
+$(function() {
+    $(".dropdown-toggle").dropdown('toggle');
+});
+/**
+ * 参数说明
+ * mapInitCenter 地图中心点
+ * mapZoomLv 地图缩放级别
+ * isShowSlider 是否显示缩放按钮
+ * isShowScalebar 是否显示比例尺
+ * onlineMapType ArcGIS在线地图（可选内容）
+ *               ChinaOnlineCommunity_Mobile (MapServer)
+ *               ChinaOnlineCommunityENG (MapServer)
+ *               ChinaOnlineCommunity (MapServer)
+ *               ChinaOnlineStreetGray (MapServer)
+ *               ChinaOnlineStreetPurplishBlue (MapServer)
+ *               ChinaOnlineStreetWarm (MapServer)
+ */
+var mapInitCenter=[103.80481300386711,36.8489021019168];
+var mapZoomLv=5;
+var isShowSlider=false;
+var isShowScalebar=true;
+var onlineMapType="ChinaOnlineStreetPurplishBlue";
+var mapBackgroundColor="#00192e";//#ffffff
+
+
+require([
+    "dojo/parser",
+    "dojo/ready",
+    "dojo/_base/array",
+    "esri/Color",
+    "esri/map",
+    "esri/layers/ArcGISTiledMapServiceLayer",
+    "esri/dijit/Scalebar",
+    "dojo/domReady!"
+], function(
+    parser, ready, arrayUtils, Color, Map,ArcGISTiledMapServiceLayer,Scalebar
+) {
+    ready(function() {
+        // //parser.parse();
+
+        //初始化地图
+        map = new Map("mapDiv", {
+            center:mapInitCenter,
+            logo:false,
+            slider:isShowSlider,
+            zoom: mapZoomLv,
+            backgroundColor:new Color(mapBackgroundColor),
+            isZoomSlider:isShowSlider,
+        });
+
+        //比例尺
+        if(isShowScalebar){
+            var scalebar = new Scalebar({
+                map: map,
+                scalebarUnit: "dual",
+                attachTo: "bottom-left"
+            });
+        }
+        //底图服务
+        var layer1 = new ArcGISTiledMapServiceLayer("http://map.geoq.cn/ArcGIS/rest/services/"+onlineMapType+"/MapServer");
+        map.addLayer(layer1);
+
+        addCell();
+
+    });
+});
+
+function addCell() {
+    require([
+        "esri/layers/GraphicsLayer",
+        "esri/geometry/Point",
+        "esri/graphic",
+        "esri/Color",
+        "esri/symbols/SimpleMarkerSymbol"
+], function(
+    GraphicsLayer,Point,Graphic,Color,SimpleMarkerSymbol
+) {
+var cellLayer = new GraphicsLayer({
+    id: "cellGraphic"{#,
+    infoTemplate:popupTemplate2#}
+});
+map.addLayer(cellLayer);
+function createSector(size,azimuth,color){
+    var sms=new SimpleMarkerSymbol();
+    sms.setPath("M0,0,L0,100 L0,0 L-30,-96 A15,15 0 0,1 30,-96 z");//sms.setPath("M0,0,L0,100 L0,0 L-50,-86 A100,100 0 1.466,16,1.466z");
+    sms.setSize(size);
+    sms.setAngle(azimuth);
+    sms.setColor(new Color(color));
+    sms.setOutline(null);
+    return sms;
+}
+
+var graphic = new Graphic(new Point([103.80481300386711,36.8489021019168]), createSector(40,45,"red"),{});
+});
+}
+
+</script>
+{% endblock %}

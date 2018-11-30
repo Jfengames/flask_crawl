@@ -1,0 +1,51 @@
+ul{
+    list-style: none;
+    padding-left: 0;
+}
+
+ul li{
+    border-bottom:1px solid #eee;
+    overflow: hidden;
+}
+
+.avatar-group{
+    width: 40px;
+    float: left;
+}
+
+.avatar-group .avatar{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.note-group{
+    width: 660px;
+    margin-left: 100px;
+}
+
+.note-title a{
+    width: 100%;
+    font-size: 30px;
+    color: #5688ee;
+    font-weight: 700;
+    line-height: 50px;
+}
+
+.note-content{
+    font-size: 15px;
+    line-height: 26px;
+
+}
+
+.note-info{
+    text-align:right;
+}
+
+.note-info .note-author{
+    margin-right: 20px;
+}
+
+.note-title a:hover{
+    color: blue;
+}

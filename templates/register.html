@@ -1,0 +1,23 @@
+{% extends 'base.html'%}
+
+{% block title %}注册{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/register.css')}}">
+{% endblock %}                                   
+{% block main %}
+    <h3 class="page-title">注册</h3>
+    <form method="POST">
+        {{ form.csrf_token() }}
+        {{ form.email(class="form-control", placeholder="工作邮箱", style="width: 300px;margin-left: 388px;")}} <br>
+        {{ form.username(class="form-control", placeholder="用户名", style="width: 300px;margin-left: 388px;")}} <br>
+        {{ form.password(class="form-control", placeholder="密码", style="width: 300px;margin-left: 388px;")}} <br>
+        {{ form.password2(class="form-control", placeholder="确认密码", style="width: 300px;margin-left: 388px;")}} <br>
+{#        {% for message in get_flashed_messages() %}#}
+        <div class="form-submmit">
+            {{ form.submit(class="btn btn-primary btn-block", style="margin-left: 388px;")}} <br>
+        </div>
+{#            {{ message }}#}
+{#        {% endfor %}#}
+    </form>
+{% endblock %}

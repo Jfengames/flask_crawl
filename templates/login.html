@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}登录{% endblock %}
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{url_for('static',filename='css/login.css')}}">
+{% endblock %}                                   
+{% block main %}
+    <h3 class="page-title">登录</h3>
+    <form method="POST">
+        {{ form.csrf_token() }}
+        {{ form.username(class="form-control", placeholder="用户名",style="width: 300px;margin-left: 388px;") }} <br>
+        {{ form.password(class="form-control", placeholder="密码",style="width: 300px;margin-left: 388px;") }} <br>
+
+        <div class="form-submmit">
+            {{ form.submit(class="btn btn-primary btn-block",style="width: 300px;margin-left: 388px;") }} <br>
+        </div>
+    </form>
+{% endblock %}

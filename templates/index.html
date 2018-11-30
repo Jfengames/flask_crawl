@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}首页{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css') }}">
+    <script src="{{ url_for('static',filename='js/city.js') }}" ></script>
+{% endblock %}
+
+{% block main %}
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class=flashes style="margin-top: 300px">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+<form action="/" method="POST">
+
+        <div class="form-group" style="float: left; width: 30%; margin-top:-30px">
+            <label for="scenes" style="margin-left: -348px;color: #5688ee">选择场景</label>
+                <select class="form-control" id="scenes" name="scene">
+                    <option value="居民区">居民区</option>
+                    <option value="医院">医院</option>
+                    <option value="美食">美食</option>
+                    <option value="美景">美景</option>
+                </select>
+
+            <label for="province" style="float: left; width: 30%; margin-top:-30px">选择省份</label>
+            <select class="form-control" id="province" name="province"></select>
+            <label for="city" style="margin-left: -348px;color: #5688ee">选择城市</label>
+            <select class="form-control" id="city" name="city"></select>
+        </div>
+        <input type="submit" class="btn btn-default" style="margin-left: 585px;">
+</form>
+
+<div class="table-responsive" style="overflow: scroll; height: 500px">
+                <table class="table table-striped table-sm">
+                 <caption>数据库数据</caption>
+                <thead>
+                    <tr>
+                    <th>id</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>名称</th>
+                    <th>城市代码</th>
+                    <th>区县</th>
+                    <th>地址</th>
+                    <th>经度</th>
+                    <th>纬度</th>
+                    <th>大类</th>
+                    <th>小类代码</th>
+                    <th>小类</th>
+                    <th>面积</th>
+                    <th>形状</th>
+                    <th>格式化经度</th>
+                    <th>格式化纬度</th>
+                    <th>格式化形状</th>
+                    </tr>
+                </thead>
+                    {% for i in gaodemapscene %}
+                        <tr>
+                            <td>{{ i.id }}</td>
+                            <td>{{ i.province }}</td>
+                            <td>{{ i.city }}</td>
+                            <td>{{ i.name }}</td>
+                            <td>{{ i.city_adcode }}</td>
+                            <td>{{ i.district}}</td>
+                            <td>{{ i.address }}</td>
+                            <td>{{ i.longtitude }}</td>
+                            <td>{{ i.lat }}</td>
+                            <td>{{ i.type }}</td>
+                            <td>{{ i.typecode }}</td>
+                            <td>{{ i.classify }}</td>
+                            <td>{{ i.area }}</td>
+                            <td>{{ i.shape }}</td>
+                            <td>{{ i.wgs_long }}</td>
+                            <td>{{ i.wgs_lat }}</td>
+                            <td>{{ i.wgs_shape }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+<form action="/download/",method="GET">
+    <input type="button" class="btn btn-primary"
+   	data-toggle="button" name="download" value="下载" onclick="location.href='{{ url_for('index.download1')}}'">
+</form>
+
+
+<script>
+    (function(){
+        var pHtmlStr = '';
+        for(var name in pc){
+            pHtmlStr = pHtmlStr + '<option>'+name+'</option>';
+        }
+        $("#province").html(pHtmlStr);
+        $("#province").change(function(){
+            var pname = $("#province option:selected").text();
+            var pHtmlStr = '';
+            var cityList = pc[pname];
+            for(var index in cityList){
+                pHtmlStr = pHtmlStr + '<option>'+cityList[index]+'</option>';
+            }
+            $("#city").html(pHtmlStr);
+        });
+        $("#province").change();
+    })();
+
+</script>
+
+
+</form>
+
+
+
+<script>
+$(function() {
+    $(".dropdown-toggle").dropdown('toggle');
+});
+</script>
+{% endblock %}
